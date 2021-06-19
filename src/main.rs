@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use macroquad::prelude::*;
 use selection::Selection;
+use super_position::SuperPosition;
 use tile_map::{TileMap, TileType};
 use rules::{Direction, Rule};
 
@@ -127,9 +128,9 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
     }
 }
 
-fn collect_rules(tile_map: &TileMap) -> (HashSet<Rule>, HashMap<TileType, i32>) {
+fn collect_rules(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
     let mut rule_set = HashSet::new();
-    let mut weights = HashMap::new();
+    let mut weights = SuperPosition::new();
     for y in 0..tile_map.width {
         for x in 0..tile_map.width {
             if let Some(current_tile) = tile_map.get_tile(x, y) {
