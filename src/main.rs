@@ -1,15 +1,15 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use macroquad::prelude::*;
+use rules::{Direction, Rule};
 use selection::Selection;
 use super_position::SuperPosition;
 use tile_map::{TileMap, TileType};
-use rules::{Direction, Rule};
 
-mod selection;
-mod tile_map;
 mod rules;
+mod selection;
 mod super_position;
+mod tile_map;
 
 #[macroquad::main("Texture")]
 async fn main() {
@@ -43,7 +43,7 @@ async fn main() {
             selection.right();
         }
         if is_key_pressed(KeyCode::C) {
-            let (rule_set, weights) = collect_rules(&tile_map);
+            let (rule_set, super_position) = collect_rules_and_super_position(&tile_map);
         }
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
@@ -128,16 +128,16 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
     }
 }
 
-fn collect_rules(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
+fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
     let mut rule_set = HashSet::new();
-    let mut weights = SuperPosition::new();
+    let mut super_position = SuperPosition::new();
     for y in 0..tile_map.width {
         for x in 0..tile_map.width {
             if let Some(current_tile) = tile_map.get_tile(x, y) {
-                if let Some(value) = weights.get_mut(current_tile) {
+                if let Some(value) = super_position.get_mut(current_tile) {
                     *value += 1;
                 } else {
-                    weights.insert(current_tile.clone(), 1);
+                    super_position.insert(current_tile.clone(), 1);
                 }
                 if let Some(up_tile) = tile_map.get_tile(x, y - 1) {
                     rule_set.insert(Rule(*current_tile, *up_tile, Direction::Up));
@@ -154,5 +154,5 @@ fn collect_rules(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
             }
         }
     }
-    (rule_set, weights)
+    (rule_set, super_position)
 }

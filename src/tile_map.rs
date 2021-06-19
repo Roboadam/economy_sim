@@ -11,7 +11,7 @@ impl TileType {
     }
 }
 
-pub struct TileTypeIter (TileType);
+pub struct TileTypeIter(TileType);
 
 impl Iterator for TileTypeIter {
     type Item = TileType;
@@ -31,17 +31,17 @@ pub struct TileMap {
 }
 
 impl TileMap {
-    pub fn new(tile_per_side: i32) -> Self {
+    pub fn new(tiles_per_side: i32) -> Self {
         let mut tiles = Vec::new();
-        for _i in 0..tile_per_side {
-            for _j in 0..tile_per_side {
+        for _i in 0..tiles_per_side {
+            for _j in 0..tiles_per_side {
                 tiles.push(TileType::Sea);
             }
         }
 
         TileMap {
             tiles,
-            width: tile_per_side,
+            width: tiles_per_side,
         }
     }
 
