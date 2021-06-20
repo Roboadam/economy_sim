@@ -1,10 +1,8 @@
-use std::collections::HashSet;
-
 use macroquad::prelude::*;
-use rules::{Direction, Rule};
 use selection::Selection;
-use super_position::SuperPosition;
 use tile_map::{TileMap, TileType};
+
+use crate::super_position::collapse;
 
 mod rules;
 mod selection;
@@ -43,7 +41,7 @@ async fn main() {
             selection.right();
         }
         if is_key_pressed(KeyCode::C) {
-            let (_rule_set, _super_position) = collect_rules_and_super_position(&tile_map);
+            tile_map = collapse(&tile_map, 32);
         }
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
@@ -128,31 +126,3 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
     }
 }
 
-fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
-    let mut rule_set = HashSet::new();
-    let mut super_position = SuperPosition::new();
-    for y in 0..tile_map.width as i32 {
-        for x in 0..tile_map.width as i32 {
-            if let Some(current_tile) = tile_map.get_tile(x, y) {
-                if let Some(value) = super_position.get_mut(current_tile) {
-                    *value += 1;
-                } else {
-                    super_position.insert(current_tile.clone(), 1);
-                }
-                if let Some(up_tile) = tile_map.get_tile(x, y - 1) {
-                    rule_set.insert(Rule(*current_tile, *up_tile, Direction::Up));
-                }
-                if let Some(down_tile) = tile_map.get_tile(x, y + 1) {
-                    rule_set.insert(Rule(*current_tile, *down_tile, Direction::Down));
-                }
-                if let Some(left_tile) = tile_map.get_tile(x - 1, y) {
-                    rule_set.insert(Rule(*current_tile, *left_tile, Direction::Left));
-                }
-                if let Some(right_tile) = tile_map.get_tile(x + 1, y) {
-                    rule_set.insert(Rule(*current_tile, *right_tile, Direction::Right));
-                }
-            }
-        }
-    }
-    (rule_set, super_position)
-}

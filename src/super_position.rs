@@ -1,37 +1,48 @@
+use std::collections::HashSet;
 use std::{
     collections::HashMap,
     usize,
 };
 use rand::prelude::ThreadRng;
 use rand::thread_rng;
+use rand::Rng;
 
 use crate::TileType;
+use crate::rules::{Direction, Rule};
+use crate::tile_map::TileMap;
 
 #[derive(Clone)]
-pub struct SuperPosition(HashMap<TileType, i32>);
+struct SuperPosition(HashMap<TileType, i32>);
 
 impl SuperPosition {
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self(HashMap::new())
     }
 
-    pub fn get_mut(&mut self, tile_type: &TileType) -> Option<&mut i32> {
+    fn first(&self) -> Option<TileType> {
+        for (tile_type, _weight) in self.0.clone() {
+            return Some(tile_type)
+        }
+        None
+    }
+
+    fn get_mut(&mut self, tile_type: &TileType) -> Option<&mut i32> {
         self.0.get_mut(tile_type)
     }
 
-    pub fn insert(&mut self, tile_type: TileType, value: i32) {
+    fn insert(&mut self, tile_type: TileType, value: i32) {
         self.0.insert(tile_type, value);
     }
 
-    pub fn num_positions(&self) -> usize {
+    fn num_positions(&self) -> usize {
         self.0.len()
     }
 
-    pub fn iter(&self) -> std::collections::hash_map::Iter<TileType, i32> {
+    fn iter(&self) -> std::collections::hash_map::Iter<TileType, i32> {
         self.0.iter()
     }
 
-    pub fn select_one(&mut self, selector: i32) {
+    fn select_one(&mut self, selector: i32) {
         let mut selected = TileType::Beach;
         let mut current_weight = 0;
         for (tile_type, weight) in self.0.iter() {
@@ -64,12 +75,10 @@ impl SuperPosition {
 struct SuperPositionMap {
     width: usize,
     super_positions: Vec<SuperPosition>,
-    rng: ThreadRng,
 }
 
 impl SuperPositionMap {
     fn new(width: usize, super_position: &SuperPosition) -> Self {
-        let rng = thread_rng();
         let mut super_positions = Vec::with_capacity(width * width);
         for _ in 0..width*width {
             super_positions.push(super_position.clone());
@@ -77,7 +86,6 @@ impl SuperPositionMap {
         Self {
             width,
             super_positions,
-            rng,
         }
     }
     
@@ -88,6 +96,15 @@ impl SuperPositionMap {
         let x = x as usize;
         let y = y as usize;
         self.super_positions.get_mut(y * self.width + x)
+    }
+
+    pub fn get(&self, x: i32, y:i32) -> Option<&SuperPosition> {
+        if x < 0 || y < 0 {
+            return None;
+        }
+        let x = x as usize;
+        let y = y as usize;
+        self.super_positions.get(y * self.width + x)
     }
 
     fn lowest_entropy_tile(&mut self) -> Option<&mut SuperPosition> {
@@ -119,12 +136,12 @@ impl SuperPositionMap {
         }
     }
 
-    fn collapse(&mut self) {
+    fn collapse(&mut self, rng: &mut ThreadRng) {
         loop {
             if let Some(tile) = self.lowest_entropy_tile() {
-                // let weight_sum: i32 = tile.iter().map(|value| *value.1).sum();
-                // let rand_num = self.rng.gen_range(0..weight_sum);
-                tile.select_one(1);
+                let weight_sum: i32 = tile.iter().map(|value| *value.1).sum();
+                let rand_num =   rng.gen_range(0..weight_sum);
+                tile.select_one(rand_num);
             } else {
                 return;
             }
@@ -132,9 +149,49 @@ impl SuperPositionMap {
     }
 }
 
-// fn collapse(tiles_per_side: usize, super_position: &SuperPosition) -> TileMap {
-//     let mut super_position_map = SuperPositionMap::new(tiles_per_side, super_position);
+pub fn collapse(input_tile_map: &TileMap, output_width: usize) -> TileMap {
+    let (_rule_set, super_position) = collect_rules_and_super_position(input_tile_map);
+    let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
+    let mut rng = thread_rng();
+    super_position_map.collapse(&mut rng);
+    let mut result = TileMap::new(output_width);
+    for y in 0..result.width as i32 {
+        for x in 0..result.width as i32 {
+            if let Some(super_position) = super_position_map.get(x, y) {
+                if let Some(tile_type) = super_position.first() {
+                    result.set_tile(x, y, tile_type);
+                }
+            }
+        }
+    }
+    result
+}
 
-//     let tile_map = TileMap::new(tiles_per_side);
-//     tile_map
-// }
+fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
+    let mut rule_set = HashSet::new();
+    let mut super_position = SuperPosition::new();
+    for y in 0..tile_map.width as i32 {
+        for x in 0..tile_map.width as i32 {
+            if let Some(current_tile) = tile_map.get_tile(x, y) {
+                if let Some(value) = super_position.get_mut(current_tile) {
+                    *value += 1;
+                } else {
+                    super_position.insert(current_tile.clone(), 1);
+                }
+                if let Some(up_tile) = tile_map.get_tile(x, y - 1) {
+                    rule_set.insert(Rule(*current_tile, *up_tile, Direction::Up));
+                }
+                if let Some(down_tile) = tile_map.get_tile(x, y + 1) {
+                    rule_set.insert(Rule(*current_tile, *down_tile, Direction::Down));
+                }
+                if let Some(left_tile) = tile_map.get_tile(x - 1, y) {
+                    rule_set.insert(Rule(*current_tile, *left_tile, Direction::Left));
+                }
+                if let Some(right_tile) = tile_map.get_tile(x + 1, y) {
+                    rule_set.insert(Rule(*current_tile, *right_tile, Direction::Right));
+                }
+            }
+        }
+    }
+    (rule_set, super_position)
+}
