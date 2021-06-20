@@ -4,7 +4,6 @@ use std::{
 };
 use rand::prelude::ThreadRng;
 use rand::thread_rng;
-use rand::Rng;
 
 use crate::TileType;
 
@@ -82,16 +81,16 @@ impl SuperPositionMap {
         }
     }
     
-    fn get_tile(&self, x: i32, y:i32) -> Option<&SuperPosition> {
+    fn get_mut(&mut self, x: i32, y:i32) -> Option<&mut SuperPosition> {
         if x < 0 || y < 0 {
             return None;
         }
         let x = x as usize;
         let y = y as usize;
-        self.super_positions.get(y * self.width + x)
+        self.super_positions.get_mut(y * self.width + x)
     }
 
-    fn lowest_entropy_tile(&self) -> Option<&SuperPosition> {
+    fn lowest_entropy_tile(&mut self) -> Option<&mut SuperPosition> {
         let mut lowest_x: usize = 0;
         let mut lowest_y: usize = 0;
         let mut lowest_entropy = f32::INFINITY;
@@ -99,7 +98,7 @@ impl SuperPositionMap {
     
         for y in 0..self.width {
             for x in 0..self.width {
-                if let Some(super_position) = self.get_tile(x as i32, y as i32) {
+                if let Some(super_position) = self.get_mut(x as i32, y as i32) {
                     if super_position.num_positions() > 1 {
                         let entropy = super_position.shannon_entropy();
                         if entropy < lowest_entropy {
@@ -114,7 +113,7 @@ impl SuperPositionMap {
         }
     
         if found_one {
-            self.get_tile(lowest_x as i32, lowest_y as i32)
+            self.get_mut(lowest_x as i32, lowest_y as i32)
         } else {
             None
         }
