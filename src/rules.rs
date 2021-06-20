@@ -9,4 +9,8 @@ pub enum Direction {
 }
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
-pub struct Rule(pub TileType, pub TileType, pub Direction);
+pub struct Rule {
+    pub from_tile_type: TileType, 
+    pub to_tile_type: TileType, 
+    pub direction: Direction,
+}

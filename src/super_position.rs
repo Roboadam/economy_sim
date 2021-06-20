@@ -65,6 +65,19 @@ impl SuperPosition {
         self.0.insert(selected, 0);
     }
 
+    fn collapse(&mut self, from: &Self, rules: &Vec<Rule>) {
+        let from_types = from.set_of_types();
+        let my_types = self.set_of_types();
+        let mut keepers = HashSet::new();
+        for rule in rules {
+            if from_types.contains(&rule.from_tile_type) && my_types.contains(&rule.to_tile_type) {
+                keepers.insert(rule.to_tile_type);
+            }
+        }
+        let to_remove = my_types.sub(&keepers);
+        
+    }
+
     // shannon_entropy_for_square =
     //   log(sum(weight)) -
     //   (sum(weight * log(weight)) / sum(weight))
@@ -87,9 +100,9 @@ struct SuperPositionMap {
 }
 
 #[derive(PartialEq, Eq)]
-enum Contradiction {
-    Yes,
-    No,
+enum CollapseResult {
+    Contradiction,
+    NumLeft(usize),
 }
 
 impl SuperPositionMap {
@@ -151,50 +164,52 @@ impl SuperPositionMap {
         }
     }
 
-    fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) -> Contradiction {
-        let up_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Up).collect();
-        let down_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Down).collect();
-        let left_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Left).collect();
-        let right_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Right).collect();
+    // fn apply_rules(&mut self, rules: &HashSet<Rule>)
+
+    fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) -> CollapseResult {
+        let up_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Up).collect();
+        let down_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Down).collect();
+        let left_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Left).collect();
+        let right_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Right).collect();
         loop {
             if let Some((tile, x, y)) = self.lowest_entropy_tile() {
                 let weight_sum: i32 = tile.iter().map(|value| *value.1).sum();
                 let rand_num =   rng.gen_range(0..weight_sum);
                 tile.select_one(rand_num);
                 if let Some(selected_type) = tile.first() {
-                    if self.filter_neighbor(&up_rules, selected_type, x, y - 1) == Contradiction::Yes {
-                        return Contradiction::Yes;
+                    if self.filter_neighbor(&up_rules, selected_type, x, y - 1) == CollapseResult::Contradiction {
+                        return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&down_rules, selected_type, x, y + 1) == Contradiction::Yes {
-                        return Contradiction::Yes;
+                    if self.filter_neighbor(&down_rules, selected_type, x, y + 1) == CollapseResult::Contradiction {
+                        return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&left_rules, selected_type, x - 1, y) == Contradiction::Yes {
-                        return Contradiction::Yes;
+                    if self.filter_neighbor(&left_rules, selected_type, x - 1, y) == CollapseResult::Contradiction {
+                        return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&right_rules, selected_type, x + 1, y) == Contradiction::Yes {
-                        return Contradiction::Yes;
+                    if self.filter_neighbor(&right_rules, selected_type, x + 1, y) == CollapseResult::Contradiction {
+                        return CollapseResult::Contradiction;
                     }
                 }
             } else {
-                return Contradiction::No;
+                return CollapseResult::NumLeft(1);
             }
         }
     }
 
-    fn filter_neighbor(&mut self, rules: &Vec<&Rule>, selected_type: TileType, x: i32, y: i32) -> Contradiction {
-        let allowed_types: HashSet<TileType> = rules.iter().filter(|rule| rule.0 == selected_type).map(|rule| rule.1).collect();
+    fn filter_neighbor(&mut self, rules: &Vec<&Rule>, selected_type: TileType, x: i32, y: i32) -> CollapseResult {
+        let allowed_types: HashSet<TileType> = rules.iter().filter(|rule| rule.from_tile_type == selected_type).map(|rule| rule.to_tile_type).collect();
         if let Some(tile) = self.get_mut(x, y) {
             let to_remove = tile.set_of_types().sub(&allowed_types);
             to_remove.into_iter().for_each(|type_to_remove| {
                 tile.0.remove(&type_to_remove);
             });
             if tile.0.is_empty() {
-                return Contradiction::Yes
+                return CollapseResult::Contradiction
             } else {
-                return Contradiction::No
+                return CollapseResult::NumLeft(tile.0.len())
             }
         }
-        Contradiction::No
+        CollapseResult::NumLeft(1)
     }
 }
 
@@ -204,7 +219,7 @@ pub fn collapse(input_tile_map: &TileMap, output_width: usize) -> TileMap {
         let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
         let mut rng = thread_rng();
         let contradiction = super_position_map.collapse(&mut rng, &rule_set);
-        if contradiction == Contradiction::Yes {
+        if contradiction == CollapseResult::Contradiction {
             continue;
         }
         let mut result = TileMap::new(output_width);
@@ -233,16 +248,32 @@ fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, Super
                     super_position.insert(current_tile.clone(), 1);
                 }
                 if let Some(up_tile) = tile_map.get_tile(x, y - 1) {
-                    rule_set.insert(Rule(*current_tile, *up_tile, Direction::Up));
+                    rule_set.insert(Rule{
+                            from_tile_type: *current_tile, 
+                            to_tile_type: *up_tile, 
+                            direction: Direction::Up,
+                    });
                 }
                 if let Some(down_tile) = tile_map.get_tile(x, y + 1) {
-                    rule_set.insert(Rule(*current_tile, *down_tile, Direction::Down));
+                    rule_set.insert(Rule{
+                        from_tile_type: *current_tile, 
+                        to_tile_type: *down_tile, 
+                        direction: Direction::Down,
+                    });
                 }
                 if let Some(left_tile) = tile_map.get_tile(x - 1, y) {
-                    rule_set.insert(Rule(*current_tile, *left_tile, Direction::Left));
+                    rule_set.insert(Rule{
+                        from_tile_type: *current_tile, 
+                        to_tile_type: *left_tile, 
+                        direction: Direction::Left,
+                    });
                 }
                 if let Some(right_tile) = tile_map.get_tile(x + 1, y) {
-                    rule_set.insert(Rule(*current_tile, *right_tile, Direction::Right));
+                    rule_set.insert(Rule{
+                        from_tile_type: *current_tile, 
+                        to_tile_type: *right_tile, 
+                        direction: Direction::Right,
+                    });
                 }
             }
         }
