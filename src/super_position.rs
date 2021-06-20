@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::hash::Hash;
 use std::ops::Sub;
 use std::{
     collections::HashMap,
@@ -87,6 +86,12 @@ struct SuperPositionMap {
     super_positions: Vec<SuperPosition>,
 }
 
+#[derive(PartialEq, Eq)]
+enum Contradiction {
+    Yes,
+    No,
+}
+
 impl SuperPositionMap {
     fn new(width: usize, super_position: &SuperPosition) -> Self {
         let mut super_positions = Vec::with_capacity(width * width);
@@ -146,7 +151,7 @@ impl SuperPositionMap {
         }
     }
 
-    fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) {
+    fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) -> Contradiction {
         let up_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Up).collect();
         let down_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Down).collect();
         let left_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.2 == Direction::Left).collect();
@@ -157,37 +162,63 @@ impl SuperPositionMap {
                 let rand_num =   rng.gen_range(0..weight_sum);
                 tile.select_one(rand_num);
                 if let Some(selected_type) = tile.first() {
-                    let up_types: HashSet<TileType> = up_rules.iter().filter(|rule| rule.0 == selected_type).map(|rule| rule.1).collect();
-                    if let Some(up_tile) = self.get_mut(x, y-1) {
-                        let to_remove = up_tile.set_of_types().sub(&up_types);
-                        to_remove.into_iter().for_each(|type_to_remove| {
-                            up_tile.0.remove(&type_to_remove);
-                        });
+                    if self.filter_neighbor(&up_rules, selected_type, x, y - 1) == Contradiction::Yes {
+                        return Contradiction::Yes;
+                    }
+                    if self.filter_neighbor(&down_rules, selected_type, x, y + 1) == Contradiction::Yes {
+                        return Contradiction::Yes;
+                    }
+                    if self.filter_neighbor(&left_rules, selected_type, x - 1, y) == Contradiction::Yes {
+                        return Contradiction::Yes;
+                    }
+                    if self.filter_neighbor(&right_rules, selected_type, x + 1, y) == Contradiction::Yes {
+                        return Contradiction::Yes;
                     }
                 }
             } else {
-                return;
+                return Contradiction::No;
             }
         }
+    }
+
+    fn filter_neighbor(&mut self, rules: &Vec<&Rule>, selected_type: TileType, x: i32, y: i32) -> Contradiction {
+        let allowed_types: HashSet<TileType> = rules.iter().filter(|rule| rule.0 == selected_type).map(|rule| rule.1).collect();
+        if let Some(tile) = self.get_mut(x, y) {
+            let to_remove = tile.set_of_types().sub(&allowed_types);
+            to_remove.into_iter().for_each(|type_to_remove| {
+                tile.0.remove(&type_to_remove);
+            });
+            if tile.0.is_empty() {
+                return Contradiction::Yes
+            } else {
+                return Contradiction::No
+            }
+        }
+        Contradiction::No
     }
 }
 
 pub fn collapse(input_tile_map: &TileMap, output_width: usize) -> TileMap {
     let (rule_set, super_position) = collect_rules_and_super_position(input_tile_map);
-    let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
-    let mut rng = thread_rng();
-    super_position_map.collapse(&mut rng, &rule_set);
-    let mut result = TileMap::new(output_width);
-    for y in 0..result.width as i32 {
-        for x in 0..result.width as i32 {
-            if let Some(super_position) = super_position_map.get(x, y) {
-                if let Some(tile_type) = super_position.first() {
-                    result.set_tile(x, y, tile_type);
+    loop {
+        let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
+        let mut rng = thread_rng();
+        let contradiction = super_position_map.collapse(&mut rng, &rule_set);
+        if contradiction == Contradiction::Yes {
+            continue;
+        }
+        let mut result = TileMap::new(output_width);
+        for y in 0..result.width as i32 {
+            for x in 0..result.width as i32 {
+                if let Some(super_position) = super_position_map.get(x, y) {
+                    if let Some(tile_type) = super_position.first() {
+                        result.set_tile(x, y, tile_type);
+                    }
                 }
             }
         }
+        return result
     }
-    result
 }
 
 fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
