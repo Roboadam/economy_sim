@@ -65,7 +65,11 @@ impl SuperPosition {
         self.0.insert(selected, 0);
     }
 
-    fn collapse(&mut self, from: &Self, rules: &Vec<Rule>) {
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    fn collapse(&mut self, from: &Self, rules: &Vec<Rule>) -> bool {
         let from_types = from.set_of_types();
         let my_types = self.set_of_types();
         let mut keepers = HashSet::new();
@@ -75,7 +79,11 @@ impl SuperPosition {
             }
         }
         let to_remove = my_types.sub(&keepers);
-        
+        let changed = to_remove.len() > 0;
+        for tile_type in to_remove {
+            self.0.remove(&tile_type);
+        }
+        changed
     }
 
     // shannon_entropy_for_square =
@@ -102,7 +110,8 @@ struct SuperPositionMap {
 #[derive(PartialEq, Eq)]
 enum CollapseResult {
     Contradiction,
-    NumLeft(usize),
+    Ok,
+    Done,
 }
 
 impl SuperPositionMap {
@@ -164,7 +173,9 @@ impl SuperPositionMap {
         }
     }
 
-    // fn apply_rules(&mut self, rules: &HashSet<Rule>)
+    fn apply_rules_once(&mut self, rules: &HashSet<Rule>) -> CollapseResult {
+        CollapseResult::Ok
+    }
 
     fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) -> CollapseResult {
         let up_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Up).collect();
@@ -191,7 +202,7 @@ impl SuperPositionMap {
                     }
                 }
             } else {
-                return CollapseResult::NumLeft(1);
+                return CollapseResult::Done;
             }
         }
     }
@@ -204,12 +215,12 @@ impl SuperPositionMap {
                 tile.0.remove(&type_to_remove);
             });
             if tile.0.is_empty() {
-                return CollapseResult::Contradiction
+                return CollapseResult::Contradiction;
             } else {
-                return CollapseResult::NumLeft(tile.0.len())
+                return CollapseResult::Ok;
             }
         }
-        CollapseResult::NumLeft(1)
+        CollapseResult::Ok
     }
 }
 
