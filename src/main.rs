@@ -15,7 +15,7 @@ mod tile_map;
 async fn main() {
     let texture: Texture2D = load_texture("textures/land_tilemap.png").await.unwrap();
     texture.set_filter(FilterMode::Nearest);
-    const TILES_PER_SIDE: i32 = 16;
+    const TILES_PER_SIDE: usize = 16;
 
     let mut selection = Selection::new(TILES_PER_SIDE);
 
@@ -43,7 +43,7 @@ async fn main() {
             selection.right();
         }
         if is_key_pressed(KeyCode::C) {
-            let (rule_set, super_position) = collect_rules_and_super_position(&tile_map);
+            let (_rule_set, _super_position) = collect_rules_and_super_position(&tile_map);
         }
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
@@ -104,8 +104,8 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
         h: TILE_PIXEL_LEN,
     };
 
-    for y in 0..tile_map.width {
-        for x in 0..tile_map.width {
+    for y in 0..tile_map.width as i32 {
+        for x in 0..tile_map.width as i32 {
             if let Some(tile_type) = tile_map.get_tile(x, y) {
                 let rect = match tile_type {
                     TileType::Land => land_tile,
@@ -131,8 +131,8 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
 fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, SuperPosition) {
     let mut rule_set = HashSet::new();
     let mut super_position = SuperPosition::new();
-    for y in 0..tile_map.width {
-        for x in 0..tile_map.width {
+    for y in 0..tile_map.width as i32 {
+        for x in 0..tile_map.width as i32 {
             if let Some(current_tile) = tile_map.get_tile(x, y) {
                 if let Some(value) = super_position.get_mut(current_tile) {
                     *value += 1;

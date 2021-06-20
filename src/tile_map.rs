@@ -27,11 +27,11 @@ impl Iterator for TileTypeIter {
 
 pub struct TileMap {
     tiles: Vec<TileType>,
-    pub width: i32,
+    pub width: usize,
 }
 
 impl TileMap {
-    pub fn new(tiles_per_side: i32) -> Self {
+    pub fn new(tiles_per_side: usize) -> Self {
         let mut tiles = Vec::new();
         for _i in 0..tiles_per_side {
             for _j in 0..tiles_per_side {
@@ -62,8 +62,8 @@ impl TileMap {
     }
 
     fn xy_as_index(&self, x: i32, y: i32) -> Option<usize> {
-        let index = y * self.width + x;
-        if index < 0 || index > self.width * self.width - 1 {
+        let index = y * self.width as i32 + x;
+        if index < 0 || index > (self.width * self.width) as i32 - 1 {
             None
         } else {
             Some(index as usize)
