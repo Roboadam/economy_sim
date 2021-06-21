@@ -1,6 +1,5 @@
-// use rand::prelude::ThreadRng;
-// use rand::thread_rng;
-// use rand::Rng;
+use rand::thread_rng;
+use rand::Rng;
 use std::collections::HashSet;
 use std::ops::Sub;
 use std::{collections::HashMap, usize};
@@ -145,7 +144,7 @@ impl SuperPositionMap {
         None
     }
 
-    fn lowest_entropy_tile(&mut self) -> Option<(&mut SuperPosition, i32, i32)> {
+    pub fn lowest_entropy_tile(&mut self) -> Option<(&mut SuperPosition, i32, i32)> {
         let mut lowest_x: usize = 0;
         let mut lowest_y: usize = 0;
         let mut lowest_entropy = f32::INFINITY;
@@ -217,7 +216,7 @@ impl SuperPositionMap {
                         result = CollapseResult::Changed;
                     }
                     if tile.len() > 1 {
-                        is_done = false;
+                    is_done = false;
                     }
                 }
                 if let Some(right_tile) = self.get(x + 1, y) {
@@ -289,6 +288,7 @@ fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, Super
 
 pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
     let result = TileMap::new(output_width);
+    let mut rng = thread_rng();
 
     let (rules, super_position) = collect_rules_and_super_position(input);
     let up_rules: Vec<Rule> = rules
@@ -315,9 +315,22 @@ pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
     // Loop until there is no contradiction
     loop {
         let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
-        let collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
-        if collapse_result != CollapseResult::Contradiction {
-            break
+        if let Some((lowest_entropy, x, y)) = super_position_map.lowest_entropy_tile() {
+            let weight_sum = lowest_entropy.0.iter().map(|(_, weight)| weight).sum();
+            let selector = rng.gen_range(0..weight_sum);
+            lowest_entropy.select_one(selector);
+            let mut collapse_result = CollapseResult::Changed;
+            while collapse_result == CollapseResult::Changed {
+                collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
+                match collapse_result {
+                    CollapseResult::Contradiction => break,
+                    CollapseResult::Done => todo!("Return result here"),
+                    CollapseResult::Changed => {},
+                    CollapseResult::Unchanged => break,
+                }
+            }
+        } else {
+            break;
         }
     }   
     result
