@@ -1,16 +1,13 @@
-use std::collections::HashSet;
-use std::ops::Sub;
-use std::{
-    collections::HashMap,
-    usize,
-};
 use rand::prelude::ThreadRng;
 use rand::thread_rng;
 use rand::Rng;
+use std::collections::HashSet;
+use std::ops::Sub;
+use std::{collections::HashMap, usize};
 
-use crate::TileType;
 use crate::rules::{Direction, Rule};
 use crate::tile_map::TileMap;
+use crate::TileType;
 
 #[derive(Clone)]
 struct SuperPosition(HashMap<TileType, i32>);
@@ -22,7 +19,7 @@ impl SuperPosition {
 
     fn first(&self) -> Option<TileType> {
         for (tile_type, _weight) in self.0.clone() {
-            return Some(tile_type)
+            return Some(tile_type);
         }
         None
     }
@@ -69,7 +66,7 @@ impl SuperPosition {
         self.0.len()
     }
 
-    fn collapse(&mut self, from: &Self, rules: &Vec<Rule>) -> bool {
+    fn collapse(&mut self, from: &Self, rules: &HashSet<Rule>) -> bool {
         let from_types = from.set_of_types();
         let my_types = self.set_of_types();
         let mut keepers = HashSet::new();
@@ -117,7 +114,7 @@ enum CollapseResult {
 impl SuperPositionMap {
     fn new(width: usize, super_position: &SuperPosition) -> Self {
         let mut super_positions = Vec::with_capacity(width * width);
-        for _ in 0..width*width {
+        for _ in 0..width * width {
             super_positions.push(super_position.clone());
         }
         Self {
@@ -125,8 +122,8 @@ impl SuperPositionMap {
             super_positions,
         }
     }
-    
-    fn get_mut(&mut self, x: i32, y:i32) -> Option<&mut SuperPosition> {
+
+    fn get_mut(&mut self, x: i32, y: i32) -> Option<&mut SuperPosition> {
         if x < 0 || y < 0 {
             return None;
         }
@@ -135,7 +132,7 @@ impl SuperPositionMap {
         self.super_positions.get_mut(y * self.width + x)
     }
 
-    pub fn get(&self, x: i32, y:i32) -> Option<&SuperPosition> {
+    pub fn get(&self, x: i32, y: i32) -> Option<&SuperPosition> {
         if x < 0 || y < 0 {
             return None;
         }
@@ -149,7 +146,7 @@ impl SuperPositionMap {
         let mut lowest_y: usize = 0;
         let mut lowest_entropy = f32::INFINITY;
         let mut found_one = false;
-    
+
         for y in 0..self.width {
             for x in 0..self.width {
                 if let Some(super_position) = self.get_mut(x as i32, y as i32) {
@@ -165,39 +162,87 @@ impl SuperPositionMap {
                 }
             }
         }
-    
+
         if found_one {
-            self.get_mut(lowest_x as i32, lowest_y as i32).map(|sp| (sp, lowest_x as i32, lowest_y as i32))
+            self.get_mut(lowest_x as i32, lowest_y as i32)
+                .map(|sp| (sp, lowest_x as i32, lowest_y as i32))
         } else {
             None
         }
     }
 
     fn apply_rules_once(&mut self, rules: &HashSet<Rule>) -> CollapseResult {
-        CollapseResult::Ok
+        let up_rules: Vec<Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Up)
+            .map(|rule| rule.clone())
+            .collect();
+        let down_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Down)
+            .collect();
+        let left_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Left)
+            .collect();
+        let right_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Right)
+            .collect();
+        let mut result = CollapseResult::Done;
+        for y in 0..self.width as i32 {
+            for x in 0..self.width as i32 {
+                let up_tile = self.get(x, y - 1).clone();
+                let down_tile = self.get(x, y + 1).clone();
+                let left_tile = self.get(x - 1, y).clone();
+                let right_tile = self.get(x + 1, y).clone();
+                if let Some(tile) = self.get_mut(x, y) {}
+            }
+        }
+        return CollapseResult::Ok;
     }
 
     fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) -> CollapseResult {
-        let up_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Up).collect();
-        let down_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Down).collect();
-        let left_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Left).collect();
-        let right_rules: Vec<&Rule> = rules.iter().filter(|rule| rule.direction == Direction::Right).collect();
+        let up_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Up)
+            .collect();
+        let down_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Down)
+            .collect();
+        let left_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Left)
+            .collect();
+        let right_rules: Vec<&Rule> = rules
+            .iter()
+            .filter(|rule| rule.direction == Direction::Right)
+            .collect();
         loop {
             if let Some((tile, x, y)) = self.lowest_entropy_tile() {
                 let weight_sum: i32 = tile.iter().map(|value| *value.1).sum();
-                let rand_num =   rng.gen_range(0..weight_sum);
+                let rand_num = rng.gen_range(0..weight_sum);
                 tile.select_one(rand_num);
                 if let Some(selected_type) = tile.first() {
-                    if self.filter_neighbor(&up_rules, selected_type, x, y - 1) == CollapseResult::Contradiction {
+                    if self.filter_neighbor(&up_rules, selected_type, x, y - 1)
+                        == CollapseResult::Contradiction
+                    {
                         return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&down_rules, selected_type, x, y + 1) == CollapseResult::Contradiction {
+                    if self.filter_neighbor(&down_rules, selected_type, x, y + 1)
+                        == CollapseResult::Contradiction
+                    {
                         return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&left_rules, selected_type, x - 1, y) == CollapseResult::Contradiction {
+                    if self.filter_neighbor(&left_rules, selected_type, x - 1, y)
+                        == CollapseResult::Contradiction
+                    {
                         return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&right_rules, selected_type, x + 1, y) == CollapseResult::Contradiction {
+                    if self.filter_neighbor(&right_rules, selected_type, x + 1, y)
+                        == CollapseResult::Contradiction
+                    {
                         return CollapseResult::Contradiction;
                     }
                 }
@@ -207,8 +252,18 @@ impl SuperPositionMap {
         }
     }
 
-    fn filter_neighbor(&mut self, rules: &Vec<&Rule>, selected_type: TileType, x: i32, y: i32) -> CollapseResult {
-        let allowed_types: HashSet<TileType> = rules.iter().filter(|rule| rule.from_tile_type == selected_type).map(|rule| rule.to_tile_type).collect();
+    fn filter_neighbor(
+        &mut self,
+        rules: &Vec<&Rule>,
+        selected_type: TileType,
+        x: i32,
+        y: i32,
+    ) -> CollapseResult {
+        let allowed_types: HashSet<TileType> = rules
+            .iter()
+            .filter(|rule| rule.from_tile_type == selected_type)
+            .map(|rule| rule.to_tile_type)
+            .collect();
         if let Some(tile) = self.get_mut(x, y) {
             let to_remove = tile.set_of_types().sub(&allowed_types);
             to_remove.into_iter().for_each(|type_to_remove| {
@@ -243,7 +298,7 @@ pub fn collapse(input_tile_map: &TileMap, output_width: usize) -> TileMap {
                 }
             }
         }
-        return result
+        return result;
     }
 }
 
@@ -259,30 +314,30 @@ fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, Super
                     super_position.insert(current_tile.clone(), 1);
                 }
                 if let Some(up_tile) = tile_map.get_tile(x, y - 1) {
-                    rule_set.insert(Rule{
-                            from_tile_type: *current_tile, 
-                            to_tile_type: *up_tile, 
-                            direction: Direction::Up,
+                    rule_set.insert(Rule {
+                        from_tile_type: *current_tile,
+                        to_tile_type: *up_tile,
+                        direction: Direction::Up,
                     });
                 }
                 if let Some(down_tile) = tile_map.get_tile(x, y + 1) {
-                    rule_set.insert(Rule{
-                        from_tile_type: *current_tile, 
-                        to_tile_type: *down_tile, 
+                    rule_set.insert(Rule {
+                        from_tile_type: *current_tile,
+                        to_tile_type: *down_tile,
                         direction: Direction::Down,
                     });
                 }
                 if let Some(left_tile) = tile_map.get_tile(x - 1, y) {
-                    rule_set.insert(Rule{
-                        from_tile_type: *current_tile, 
-                        to_tile_type: *left_tile, 
+                    rule_set.insert(Rule {
+                        from_tile_type: *current_tile,
+                        to_tile_type: *left_tile,
                         direction: Direction::Left,
                     });
                 }
                 if let Some(right_tile) = tile_map.get_tile(x + 1, y) {
-                    rule_set.insert(Rule{
-                        from_tile_type: *current_tile, 
-                        to_tile_type: *right_tile, 
+                    rule_set.insert(Rule {
+                        from_tile_type: *current_tile,
+                        to_tile_type: *right_tile,
                         direction: Direction::Right,
                     });
                 }

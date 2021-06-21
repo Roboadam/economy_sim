@@ -125,4 +125,3 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
         }
     }
 }
-
