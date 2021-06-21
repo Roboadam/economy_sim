@@ -1,6 +1,6 @@
-use rand::prelude::ThreadRng;
-use rand::thread_rng;
-use rand::Rng;
+// use rand::prelude::ThreadRng;
+// use rand::thread_rng;
+// use rand::Rng;
 use std::collections::HashSet;
 use std::ops::Sub;
 use std::{collections::HashMap, usize};
@@ -66,7 +66,7 @@ impl SuperPosition {
         self.0.len()
     }
 
-    fn collapse(&mut self, from: &Self, rules: &HashSet<Rule>) -> bool {
+    fn collapse(&mut self, from: &Self, rules: &Vec<Rule>) -> bool {
         let from_types = from.set_of_types();
         let my_types = self.set_of_types();
         let mut keepers = HashSet::new();
@@ -107,8 +107,9 @@ struct SuperPositionMap {
 #[derive(PartialEq, Eq)]
 enum CollapseResult {
     Contradiction,
-    Ok,
     Done,
+    Changed,
+    Unchanged,
 }
 
 impl SuperPositionMap {
@@ -132,13 +133,16 @@ impl SuperPositionMap {
         self.super_positions.get_mut(y * self.width + x)
     }
 
-    pub fn get(&self, x: i32, y: i32) -> Option<&SuperPosition> {
+    pub fn get(&self, x: i32, y: i32) -> Option<SuperPosition> {
         if x < 0 || y < 0 {
             return None;
         }
         let x = x as usize;
         let y = y as usize;
-        self.super_positions.get(y * self.width + x)
+        if let Some(tile) = self.super_positions.get(y * self.width + x) {
+            return Some(tile.clone());
+        }
+        None
     }
 
     fn lowest_entropy_tile(&mut self) -> Option<(&mut SuperPosition, i32, i32)> {
@@ -171,134 +175,70 @@ impl SuperPositionMap {
         }
     }
 
-    fn apply_rules_once(&mut self, rules: &HashSet<Rule>) -> CollapseResult {
-        let up_rules: Vec<Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Up)
-            .map(|rule| rule.clone())
-            .collect();
-        let down_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Down)
-            .collect();
-        let left_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Left)
-            .collect();
-        let right_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Right)
-            .collect();
-        let mut result = CollapseResult::Done;
+    fn apply_rules_once(&mut self, up_rules: &Vec<Rule>, down_rules: &Vec<Rule>, left_rules: &Vec<Rule>, right_rules: &Vec<Rule>) -> CollapseResult {
+
+        let mut result = CollapseResult::Unchanged;
+        let mut is_done = true;
         for y in 0..self.width as i32 {
             for x in 0..self.width as i32 {
-                let up_tile = self.get(x, y - 1).clone();
-                let down_tile = self.get(x, y + 1).clone();
-                let left_tile = self.get(x - 1, y).clone();
-                let right_tile = self.get(x + 1, y).clone();
-                if let Some(tile) = self.get_mut(x, y) {}
-            }
-        }
-        return CollapseResult::Ok;
-    }
-
-    fn collapse(&mut self, rng: &mut ThreadRng, rules: &HashSet<Rule>) -> CollapseResult {
-        let up_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Up)
-            .collect();
-        let down_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Down)
-            .collect();
-        let left_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Left)
-            .collect();
-        let right_rules: Vec<&Rule> = rules
-            .iter()
-            .filter(|rule| rule.direction == Direction::Right)
-            .collect();
-        loop {
-            if let Some((tile, x, y)) = self.lowest_entropy_tile() {
-                let weight_sum: i32 = tile.iter().map(|value| *value.1).sum();
-                let rand_num = rng.gen_range(0..weight_sum);
-                tile.select_one(rand_num);
-                if let Some(selected_type) = tile.first() {
-                    if self.filter_neighbor(&up_rules, selected_type, x, y - 1)
-                        == CollapseResult::Contradiction
-                    {
+                if let Some(up_tile) = self.get(x, y - 1) {
+                    let tile = self.get_mut(x, y).unwrap();
+                    let changed = tile.collapse(&up_tile, up_rules);
+                    if tile.len() == 0 {
                         return CollapseResult::Contradiction;
                     }
-                    if self.filter_neighbor(&down_rules, selected_type, x, y + 1)
-                        == CollapseResult::Contradiction
-                    {
-                        return CollapseResult::Contradiction;
+                    if changed {
+                        result = CollapseResult::Changed;
                     }
-                    if self.filter_neighbor(&left_rules, selected_type, x - 1, y)
-                        == CollapseResult::Contradiction
-                    {
-                        return CollapseResult::Contradiction;
-                    }
-                    if self.filter_neighbor(&right_rules, selected_type, x + 1, y)
-                        == CollapseResult::Contradiction
-                    {
-                        return CollapseResult::Contradiction;
+                    if tile.len() > 1 {
+                        is_done = false;
                     }
                 }
-            } else {
-                return CollapseResult::Done;
-            }
-        }
-    }
-
-    fn filter_neighbor(
-        &mut self,
-        rules: &Vec<&Rule>,
-        selected_type: TileType,
-        x: i32,
-        y: i32,
-    ) -> CollapseResult {
-        let allowed_types: HashSet<TileType> = rules
-            .iter()
-            .filter(|rule| rule.from_tile_type == selected_type)
-            .map(|rule| rule.to_tile_type)
-            .collect();
-        if let Some(tile) = self.get_mut(x, y) {
-            let to_remove = tile.set_of_types().sub(&allowed_types);
-            to_remove.into_iter().for_each(|type_to_remove| {
-                tile.0.remove(&type_to_remove);
-            });
-            if tile.0.is_empty() {
-                return CollapseResult::Contradiction;
-            } else {
-                return CollapseResult::Ok;
-            }
-        }
-        CollapseResult::Ok
-    }
-}
-
-pub fn collapse(input_tile_map: &TileMap, output_width: usize) -> TileMap {
-    let (rule_set, super_position) = collect_rules_and_super_position(input_tile_map);
-    loop {
-        let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
-        let mut rng = thread_rng();
-        let contradiction = super_position_map.collapse(&mut rng, &rule_set);
-        if contradiction == CollapseResult::Contradiction {
-            continue;
-        }
-        let mut result = TileMap::new(output_width);
-        for y in 0..result.width as i32 {
-            for x in 0..result.width as i32 {
-                if let Some(super_position) = super_position_map.get(x, y) {
-                    if let Some(tile_type) = super_position.first() {
-                        result.set_tile(x, y, tile_type);
+                if let Some(down_tile) = self.get(x, y + 1) {
+                    let tile = self.get_mut(x, y).unwrap();
+                    let changed = tile.collapse(&down_tile, down_rules);
+                    if tile.len() == 0 {
+                        return CollapseResult::Contradiction;
+                    }
+                    if changed {
+                        result = CollapseResult::Changed;
+                    }
+                    if tile.len() > 1 {
+                        is_done = false;
+                    }
+                }
+                if let Some(left_tile) = self.get(x - 1, y) {
+                    let tile = self.get_mut(x, y).unwrap();
+                    let changed = tile.collapse(&left_tile, left_rules);
+                    if tile.len() == 0 {
+                        return CollapseResult::Contradiction;
+                    }
+                    if changed {
+                        result = CollapseResult::Changed;
+                    }
+                    if tile.len() > 1 {
+                        is_done = false;
+                    }
+                }
+                if let Some(right_tile) = self.get(x + 1, y) {
+                    let tile = self.get_mut(x, y).unwrap();
+                    let changed = tile.collapse(&right_tile, right_rules);
+                    if tile.len() == 0 {
+                        return CollapseResult::Contradiction;
+                    }
+                    if changed {
+                        result = CollapseResult::Changed;
+                    }
+                    if tile.len() > 1 {
+                        is_done = false;
                     }
                 }
             }
         }
-        return result;
+        if is_done {
+            return CollapseResult::Done;
+        }
+        result
     }
 }
 
@@ -345,4 +285,39 @@ fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, Super
         }
     }
     (rule_set, super_position)
+}
+
+pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
+    let result = TileMap::new(output_width);
+
+    let (rules, super_position) = collect_rules_and_super_position(input);
+    let up_rules: Vec<Rule> = rules
+        .iter()
+        .filter(|rule| rule.direction == Direction::Up)
+        .map(|rule| rule.clone())
+        .collect();
+    let down_rules: Vec<Rule> = rules
+        .iter()
+        .filter(|rule| rule.direction == Direction::Down)
+        .map(|rule| rule.clone())
+        .collect();
+    let left_rules: Vec<Rule> = rules
+        .iter()
+        .filter(|rule| rule.direction == Direction::Left)
+        .map(|rule| rule.clone())
+        .collect();
+    let right_rules: Vec<Rule> = rules
+        .iter()
+        .filter(|rule| rule.direction == Direction::Right)
+        .map(|rule| rule.clone())
+        .collect();
+    let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
+    let collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
+    match collapse_result {
+        CollapseResult::Contradiction => todo!(),
+        CollapseResult::Done => todo!(),
+        CollapseResult::Changed => todo!(),
+        CollapseResult::Unchanged => todo!(),
+    }
+    result
 }
