@@ -311,13 +311,14 @@ pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
         .filter(|rule| rule.direction == Direction::Right)
         .map(|rule| rule.clone())
         .collect();
-    let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
-    let collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
-    match collapse_result {
-        CollapseResult::Contradiction => todo!(),
-        CollapseResult::Done => todo!(),
-        CollapseResult::Changed => todo!(),
-        CollapseResult::Unchanged => todo!(),
-    }
+
+    // Loop until there is no contradiction
+    loop {
+        let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
+        let collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
+        if collapse_result != CollapseResult::Contradiction {
+            break
+        }
+    }   
     result
 }
