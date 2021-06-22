@@ -321,15 +321,20 @@ pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
         .collect();
 
     // Loop until there is no contradiction
-    let mut collapse_result = CollapseResult::Changed;
+    let mut collapse_result: CollapseResult;
+    let mut num_selected = 0;
     loop {
+        println!("Starting");
         let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
         loop {
             if let Some(lowest_entropy) = super_position_map.lowest_entropy_tile() {
                 let weight_sum = lowest_entropy.0.iter().map(|(_, weight)| weight).sum();
                 let selector = rng.gen_range(0..weight_sum);
+                num_selected += 1;
+                println!("Selecting one {}", num_selected);
                 lowest_entropy.select_one(selector);
-                while collapse_result == CollapseResult::Changed {
+                loop {
+                    println!("Changed!");
                     collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
                     match collapse_result {
                         CollapseResult::Contradiction => break,
@@ -342,9 +347,9 @@ pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
                 break;
             }
             if collapse_result == CollapseResult::Contradiction {
+                println!("Contradictdion!");
                 break;
             }
         }
     }   
-    // TileMap::new(output_width)
 }

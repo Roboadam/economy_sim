@@ -40,7 +40,7 @@ async fn main() {
             selection.right();
         }
         if is_key_pressed(KeyCode::C) {
-            tile_map = collapse(&tile_map, 32);
+            tile_map = collapse(&tile_map, 16);
         }
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
