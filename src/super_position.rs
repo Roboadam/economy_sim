@@ -43,10 +43,6 @@ impl SuperPosition {
         self.0.len()
     }
 
-    fn iter(&self) -> std::collections::hash_map::Iter<TileType, i32> {
-        self.0.iter()
-    }
-
     fn select_one(&mut self, selector: i32) {
         let mut selected = TileType::Beach;
         let mut current_weight = 0;
@@ -144,7 +140,7 @@ impl SuperPositionMap {
         None
     }
 
-    pub fn lowest_entropy_tile(&mut self) -> Option<(&mut SuperPosition, i32, i32)> {
+    pub fn lowest_entropy_tile(&mut self) -> Option<&mut SuperPosition> {
         let mut lowest_x: usize = 0;
         let mut lowest_y: usize = 0;
         let mut lowest_entropy = f32::INFINITY;
@@ -168,7 +164,6 @@ impl SuperPositionMap {
 
         if found_one {
             self.get_mut(lowest_x as i32, lowest_y as i32)
-                .map(|sp| (sp, lowest_x as i32, lowest_y as i32))
         } else {
             None
         }
@@ -286,8 +281,21 @@ fn collect_rules_and_super_position(tile_map: &TileMap) -> (HashSet<Rule>, Super
     (rule_set, super_position)
 }
 
+fn super_position_map_to_tile_map(super_position_map: &SuperPositionMap) -> TileMap {
+    let mut result = TileMap::new(super_position_map.width);
+    for y in 0..result.width as i32 {
+        for x in 0..result.width as i32 {
+            if let Some(super_position) = super_position_map.get(x, y) {
+                if let Some(tile_type) = super_position.first() {
+                    result.set_tile(x, y, tile_type);
+                }
+            }
+        }
+    }
+    result
+}
+
 pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
-    let result = TileMap::new(output_width);
     let mut rng = thread_rng();
 
     let (rules, super_position) = collect_rules_and_super_position(input);
@@ -313,25 +321,30 @@ pub fn collapse(input: &TileMap, output_width: usize) -> TileMap {
         .collect();
 
     // Loop until there is no contradiction
+    let mut collapse_result = CollapseResult::Changed;
     loop {
         let mut super_position_map = SuperPositionMap::new(output_width, &super_position);
-        if let Some((lowest_entropy, x, y)) = super_position_map.lowest_entropy_tile() {
-            let weight_sum = lowest_entropy.0.iter().map(|(_, weight)| weight).sum();
-            let selector = rng.gen_range(0..weight_sum);
-            lowest_entropy.select_one(selector);
-            let mut collapse_result = CollapseResult::Changed;
-            while collapse_result == CollapseResult::Changed {
-                collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
-                match collapse_result {
-                    CollapseResult::Contradiction => break,
-                    CollapseResult::Done => todo!("Return result here"),
-                    CollapseResult::Changed => {},
-                    CollapseResult::Unchanged => break,
+        loop {
+            if let Some(lowest_entropy) = super_position_map.lowest_entropy_tile() {
+                let weight_sum = lowest_entropy.0.iter().map(|(_, weight)| weight).sum();
+                let selector = rng.gen_range(0..weight_sum);
+                lowest_entropy.select_one(selector);
+                while collapse_result == CollapseResult::Changed {
+                    collapse_result = super_position_map.apply_rules_once(&up_rules, &down_rules, &left_rules, &right_rules);
+                    match collapse_result {
+                        CollapseResult::Contradiction => break,
+                        CollapseResult::Done => return super_position_map_to_tile_map(&super_position_map),
+                        CollapseResult::Changed => {},
+                        CollapseResult::Unchanged => break,
+                    }
                 }
+            } else {
+                break;
             }
-        } else {
-            break;
+            if collapse_result == CollapseResult::Contradiction {
+                break;
+            }
         }
     }   
-    result
+    // TileMap::new(output_width)
 }

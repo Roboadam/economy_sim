@@ -1,8 +1,7 @@
 use macroquad::prelude::*;
 use selection::Selection;
 use tile_map::{TileMap, TileType};
-
-// use crate::super_position::collapse;
+use crate::super_position::collapse;
 
 mod rules;
 mod selection;
@@ -41,7 +40,7 @@ async fn main() {
             selection.right();
         }
         if is_key_pressed(KeyCode::C) {
-            // tile_map = collapse(&tile_map, 32);
+            tile_map = collapse(&tile_map, 32);
         }
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
