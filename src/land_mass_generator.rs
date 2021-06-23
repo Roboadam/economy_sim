@@ -73,5 +73,5 @@ fn odds_of_land(x: usize, y: usize, width: usize) -> f64 {
     let y_dist = (y - middle).abs();
     let distance = (x_dist * x_dist + y_dist * y_dist).sqrt();
 
-    (1. - distance / middle).clamp(0., 1.)
+    (1.2 - distance / middle).clamp(0., 1.)
 }

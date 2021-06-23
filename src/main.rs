@@ -51,8 +51,7 @@ async fn main() {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
                 let new_tile_type = match tile_type {
                     TileType::Land => TileType::Sea,
-                    TileType::Sea => TileType::Beach,
-                    TileType::Beach => TileType::Land,
+                    TileType::Sea => TileType::Land,
                 };
                 tile_map.set_tile(selection.x, selection.y, new_tile_type)
             }
@@ -94,12 +93,6 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
         h: TILE_PIXEL_LEN,
     };
     let land_tile = Rect {
-        x: TILE_PIXEL_LEN,
-        y: 0.,
-        w: TILE_PIXEL_LEN,
-        h: TILE_PIXEL_LEN,
-    };
-    let beach_tile = Rect {
         x: TILE_PIXEL_LEN * 2.,
         y: 0.,
         w: TILE_PIXEL_LEN,
@@ -112,7 +105,6 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
                 let rect = match tile_type {
                     TileType::Land => land_tile,
                     TileType::Sea => water_tile,
-                    TileType::Beach => beach_tile,
                 };
                 draw_texture_ex(
                     *texture,

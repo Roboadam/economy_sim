@@ -2,27 +2,6 @@
 pub enum TileType {
     Land,
     Sea,
-    Beach,
-}
-
-impl TileType {
-    pub fn iter() -> TileTypeIter {
-        TileTypeIter(Self::Land)
-    }
-}
-
-pub struct TileTypeIter(TileType);
-
-impl Iterator for TileTypeIter {
-    type Item = TileType;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.0 {
-            TileType::Land => Some(TileType::Sea),
-            TileType::Sea => Some(TileType::Beach),
-            TileType::Beach => None,
-        }
-    }
 }
 
 pub struct TileMap {
