@@ -1,11 +1,11 @@
+use crate::land_mass_generator::create_land_mass;
 use macroquad::prelude::*;
 use selection::Selection;
 use tile_map::{TileMap, TileType};
-use crate::land_mass_generator::create_land_mass;
 
+mod land_mass_generator;
 mod selection;
 mod tile_map;
-mod land_mass_generator;
 
 #[macroquad::main("Texture")]
 async fn main() {

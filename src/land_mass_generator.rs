@@ -1,7 +1,7 @@
+use crate::tile_map::TileType;
+use crate::TileMap;
 use rand::thread_rng;
 use rand::Rng;
-use crate::TileMap;
-use crate::tile_map::TileType;
 
 pub fn create_land_mass(tile_map: &mut TileMap) {
     let mut rng = thread_rng();
@@ -73,6 +73,5 @@ fn odds_of_land(x: usize, y: usize, width: usize) -> f64 {
     let y_dist = (y - middle).abs();
     let distance = (x_dist * x_dist + y_dist * y_dist).sqrt();
 
-    return (1. - distance/middle).clamp(0., 1.);
+    return (1. - distance / middle).clamp(0., 1.);
 }
-
