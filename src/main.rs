@@ -1,12 +1,11 @@
 use macroquad::prelude::*;
 use selection::Selection;
 use tile_map::{TileMap, TileType};
-use crate::super_position::collapse;
+use crate::land_mass_generator::create_land_mass;
 
-mod rules;
 mod selection;
-mod super_position;
 mod tile_map;
+mod land_mass_generator;
 
 #[macroquad::main("Texture")]
 async fn main() {
@@ -17,6 +16,7 @@ async fn main() {
     let mut selection = Selection::new(TILES_PER_SIDE);
 
     let mut tile_map = TileMap::new(TILES_PER_SIDE);
+    create_land_mass(&mut tile_map);
 
     loop {
         clear_background(LIGHTGRAY);
@@ -40,7 +40,12 @@ async fn main() {
             selection.right();
         }
         if is_key_pressed(KeyCode::C) {
-            tile_map = collapse(&tile_map, 16);
+            for y in 0..tile_map.width as i32 {
+                for x in 0..tile_map.width as i32 {
+                    tile_map.set_tile(x, y, TileType::Sea);
+                }
+            }
+            create_land_mass(&mut tile_map);
         }
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
