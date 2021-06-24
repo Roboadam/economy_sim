@@ -84,40 +84,103 @@ pub fn draw_selection(selection: &Selection, tile_len: f32) {
 }
 
 pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
-    const TILE_PIXEL_LEN: f32 = 16f32;
-
-    let water_tile = Rect {
-        x: 0.,
-        y: 0.,
-        w: TILE_PIXEL_LEN,
-        h: TILE_PIXEL_LEN,
-    };
-    let land_tile = Rect {
-        x: TILE_PIXEL_LEN * 2.,
-        y: 0.,
-        w: TILE_PIXEL_LEN,
-        h: TILE_PIXEL_LEN,
-    };
-
     for y in 0..tile_map.width as i32 {
         for x in 0..tile_map.width as i32 {
-            if let Some(tile_type) = tile_map.get_tile(x, y) {
-                let rect = match tile_type {
-                    TileType::Land => land_tile,
-                    TileType::Sea => water_tile,
-                };
-                draw_texture_ex(
-                    *texture,
-                    x as f32 * tile_len,
-                    y as f32 * tile_len,
-                    WHITE,
-                    DrawTextureParams {
-                        source: Some(rect),
-                        dest_size: Some(vec2(tile_len, tile_len)),
-                        ..Default::default()
-                    },
-                );
-            }
+            draw_texture_ex(
+                *texture,
+                x as f32 * tile_len,
+                y as f32 * tile_len,
+                WHITE,
+                texture_params(x, y, tile_len, tile_map),
+            );
         }
+    }
+}
+
+fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawTextureParams {
+    const TILE_PIXEL_LEN: f32 = 16f32;
+    let my_tile_type = tile_map.get_tile(x, y).unwrap();
+    if *my_tile_type == TileType::Land {
+        return DrawTextureParams {
+            source: Some(Rect {
+                x: TILE_PIXEL_LEN,
+                y: 0.,
+                w: TILE_PIXEL_LEN,
+                h: TILE_PIXEL_LEN,
+            }),
+            dest_size: Some(vec2(tile_len, tile_len)),
+            ..Default::default()
+        };
+    }
+
+    let up_tile_land = {
+        if let Some(tile_type) = tile_map.get_tile(x, y - 1) {
+            *tile_type == TileType::Land
+        } else {
+            false
+        }
+    };
+
+    let down_tile_land = {
+        if let Some(tile_type) = tile_map.get_tile(x, y + 1) {
+            *tile_type == TileType::Land
+        } else {
+            false
+        }
+    };
+
+    let left_tile_land = {
+        if let Some(tile_type) = tile_map.get_tile(x - 1, y) {
+            *tile_type == TileType::Land
+        } else {
+            false
+        }
+    };
+
+    let right_tile_land = {
+        if let Some(tile_type) = tile_map.get_tile(x + 1, y) {
+            *tile_type == TileType::Land
+        } else {
+            false
+        }
+    };
+
+    if !up_tile_land && !down_tile_land && !left_tile_land && !right_tile_land {
+        return DrawTextureParams {
+            source: Some(Rect {
+                x: 0.,
+                y: 0.,
+                w: TILE_PIXEL_LEN,
+                h: TILE_PIXEL_LEN,
+            }),
+            dest_size: Some(vec2(tile_len, tile_len)),
+            ..Default::default()
+        };
+    }
+
+    if !up_tile_land && !down_tile_land && !left_tile_land && right_tile_land {
+        return DrawTextureParams {
+            source: Some(Rect {
+                x: TILE_PIXEL_LEN * 2.,
+                y: 0.,
+                w: TILE_PIXEL_LEN,
+                h: TILE_PIXEL_LEN,
+            }),
+            dest_size: Some(vec2(tile_len, tile_len)),
+            rotation: 3. * std::f32::consts::PI /2.,
+            ..Default::default()
+        };
+    }
+
+    DrawTextureParams {
+        source: Some(Rect {
+            x: 0.,
+            y: 0.,
+            w: TILE_PIXEL_LEN,
+            h: TILE_PIXEL_LEN,
+        }),
+        dest_size: Some(vec2(tile_len, tile_len)),
+        rotation: 3. * std::f32::consts::PI /2.,
+        ..Default::default()
     }
 }
