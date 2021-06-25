@@ -2,6 +2,7 @@ use crate::land_mass_generator::create_land_mass;
 use macroquad::prelude::*;
 use selection::Selection;
 use tile_map::{TileMap, TileType};
+use TileType::{Land, Sea};
 
 mod land_mass_generator;
 mod selection;
@@ -42,7 +43,7 @@ async fn main() {
         if is_key_pressed(KeyCode::C) {
             for y in 0..tile_map.width as i32 {
                 for x in 0..tile_map.width as i32 {
-                    tile_map.set_tile(x, y, TileType::Sea);
+                    tile_map.set_tile(x, y, Sea);
                 }
             }
             create_land_mass(&mut tile_map);
@@ -50,8 +51,8 @@ async fn main() {
         if is_key_pressed(KeyCode::Space) {
             if let Some(tile_type) = tile_map.get_tile(selection.x, selection.y) {
                 let new_tile_type = match tile_type {
-                    TileType::Land => TileType::Sea,
-                    TileType::Sea => TileType::Land,
+                    Land => Sea,
+                    Sea => Land,
                 };
                 tile_map.set_tile(selection.x, selection.y, new_tile_type)
             }
@@ -97,10 +98,49 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
     }
 }
 
+fn texture_coordinates(
+    me: &TileType,
+    up: &TileType,
+    down: &TileType,
+    left: &TileType,
+    right: &TileType,
+) -> (i32, i32) {
+    if *me == Land {
+        if *up == Sea && *down == Land && *left == Sea && *right == Land {
+            return (1, 1);
+        }
+        if *up == Sea && *down == Land && *left == Land && *right == Land {
+            return (2, 1);
+        }
+        if *up == Sea && *down == Land && *left == Land && *right == Sea {
+            return (3, 1);
+        }
+        if *up == Land && *down == Land && *left == Sea && *right == Land {
+            return (1, 2);
+        }
+        if *up == Land && *down == Land && *left == Land && *right == Land {
+            return (2, 2);
+        }
+        if *up == Land && *down == Land && *left == Land && *right == Sea {
+            return (3, 2);
+        }
+        if *up == Land && *down == Sea && *left == Sea && *right == Land {
+            return (1, 3);
+        }
+        if *up == Land && *down == Sea && *left == Land && *right == Land {
+            return (2, 3);
+        }
+        if *up == Land && *down == Sea && *left == Land && *right == Sea {
+            return (3, 3);
+        }
+    }
+    (0, 0)
+}
+
 fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawTextureParams {
     const TILE_PIXEL_LEN: f32 = 16f32;
     let my_tile_type = tile_map.get_tile(x, y).unwrap();
-    if *my_tile_type == TileType::Land {
+    if *my_tile_type == Land {
         return DrawTextureParams {
             source: Some(Rect {
                 x: TILE_PIXEL_LEN,
@@ -115,7 +155,7 @@ fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawText
 
     let up_tile_land = {
         if let Some(tile_type) = tile_map.get_tile(x, y - 1) {
-            *tile_type == TileType::Land
+            *tile_type == Land
         } else {
             false
         }
@@ -123,7 +163,7 @@ fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawText
 
     let down_tile_land = {
         if let Some(tile_type) = tile_map.get_tile(x, y + 1) {
-            *tile_type == TileType::Land
+            *tile_type == Land
         } else {
             false
         }
@@ -131,7 +171,7 @@ fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawText
 
     let left_tile_land = {
         if let Some(tile_type) = tile_map.get_tile(x - 1, y) {
-            *tile_type == TileType::Land
+            *tile_type == Land
         } else {
             false
         }
@@ -139,7 +179,7 @@ fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawText
 
     let right_tile_land = {
         if let Some(tile_type) = tile_map.get_tile(x + 1, y) {
-            *tile_type == TileType::Land
+            *tile_type == Land
         } else {
             false
         }
@@ -167,7 +207,7 @@ fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawText
                 h: TILE_PIXEL_LEN,
             }),
             dest_size: Some(vec2(tile_len, tile_len)),
-            rotation: 3. * std::f32::consts::PI /2.,
+            rotation: 3. * std::f32::consts::PI / 2.,
             ..Default::default()
         };
     }
@@ -180,7 +220,7 @@ fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawText
             h: TILE_PIXEL_LEN,
         }),
         dest_size: Some(vec2(tile_len, tile_len)),
-        rotation: 3. * std::f32::consts::PI /2.,
+        rotation: 3. * std::f32::consts::PI / 2.,
         ..Default::default()
     }
 }
