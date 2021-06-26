@@ -152,16 +152,16 @@ fn texture_coordinates(
                     // me land up sea down land left land
                     Land => match right {
                         // me land up sea down land left land right land
-                        Land => (0, 0),
+                        Land => (2, 1),
                         // me land up sea down land left land right sea
-                        Sea => (0, 0),
+                        Sea => (3, 1),
                     },
                     // me land up sea down land left sea
                     Sea => match right {
                         // me land up sea down land left sea right land
-                        Land => (0, 0),
-                        // me land up sea down land left sea left land
-                        Sea => (0, 0),
+                        Land => (1, 1),
+                        // me land up sea down land left sea right sea
+                        Sea => (6, 1),
                     },
                 },
                 // me land up sea down sea
@@ -169,16 +169,16 @@ fn texture_coordinates(
                     // me land up sea down sea left land
                     Land => match right {
                         // me land up sea down sea left land right land
-                        Land => (0, 0),
+                        Land => (6, 5),
                         // me land up sea down sea left land right sea
-                        Sea => (0, 0),
+                        Sea => (7, 5),
                     },
                     // me land up sea down sea left sea
                     Sea => match right {
                         // me land up sea down sea left sea right land
-                        Land => (0, 0),
+                        Land => (5, 5),
                         // me land up sea down sea left sea right sea
-                        Sea => (0, 0),
+                        Sea => (2, 2),
                     },
                 },
             },
