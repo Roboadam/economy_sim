@@ -210,87 +210,21 @@ fn texture_coordinates(
 fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawTextureParams {
     const TILE_PIXEL_LEN: f32 = 16f32;
     let my_tile_type = tile_map.get_tile(x, y).unwrap();
-    if *my_tile_type == Land {
-        return DrawTextureParams {
-            source: Some(Rect {
-                x: TILE_PIXEL_LEN,
-                y: 0.,
-                w: TILE_PIXEL_LEN,
-                h: TILE_PIXEL_LEN,
-            }),
-            dest_size: Some(vec2(tile_len, tile_len)),
-            ..Default::default()
-        };
-    }
+    let up_tile  = tile_map.get_tile(x, y - 1).unwrap_or(&TileType::Sea);
+    let down_tile = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
+    let left_tile = tile_map.get_tile(x - 1, y).unwrap_or(&TileType::Sea);
+    let right_tile = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
 
-    let up_tile_land = {
-        if let Some(tile_type) = tile_map.get_tile(x, y - 1) {
-            *tile_type == Land
-        } else {
-            false
-        }
-    };
-
-    let down_tile_land = {
-        if let Some(tile_type) = tile_map.get_tile(x, y + 1) {
-            *tile_type == Land
-        } else {
-            false
-        }
-    };
-
-    let left_tile_land = {
-        if let Some(tile_type) = tile_map.get_tile(x - 1, y) {
-            *tile_type == Land
-        } else {
-            false
-        }
-    };
-
-    let right_tile_land = {
-        if let Some(tile_type) = tile_map.get_tile(x + 1, y) {
-            *tile_type == Land
-        } else {
-            false
-        }
-    };
-
-    if !up_tile_land && !down_tile_land && !left_tile_land && !right_tile_land {
-        return DrawTextureParams {
-            source: Some(Rect {
-                x: 0.,
-                y: 0.,
-                w: TILE_PIXEL_LEN,
-                h: TILE_PIXEL_LEN,
-            }),
-            dest_size: Some(vec2(tile_len, tile_len)),
-            ..Default::default()
-        };
-    }
-
-    if !up_tile_land && !down_tile_land && !left_tile_land && right_tile_land {
-        return DrawTextureParams {
-            source: Some(Rect {
-                x: TILE_PIXEL_LEN * 2.,
-                y: 0.,
-                w: TILE_PIXEL_LEN,
-                h: TILE_PIXEL_LEN,
-            }),
-            dest_size: Some(vec2(tile_len, tile_len)),
-            rotation: 3. * std::f32::consts::PI / 2.,
-            ..Default::default()
-        };
-    }
+    let (x_coord, y_coord) = texture_coordinates(my_tile_type, up_tile, down_tile, left_tile, right_tile);
 
     DrawTextureParams {
         source: Some(Rect {
-            x: 0.,
-            y: 0.,
+            x: TILE_PIXEL_LEN * x_coord as f32,
+            y: TILE_PIXEL_LEN * y_coord as f32,
             w: TILE_PIXEL_LEN,
             h: TILE_PIXEL_LEN,
         }),
         dest_size: Some(vec2(tile_len, tile_len)),
-        rotation: 3. * std::f32::consts::PI / 2.,
         ..Default::default()
     }
 }
