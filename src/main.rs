@@ -106,20 +106,15 @@ fn texture_coordinates(
     right: &TileType,
 ) -> (i32, i32) {
     match me {
-        //me land
         Land => match up {
-            // me land up land
             Land => match down {
-                // me land up land down land
                 Land => match left {
-                    // me land up land down land left land
                     Land => match right {
                         // me land up land down land left land right land
                         Land => (2, 2),
                         // me land up land down land left land right sea
                         Sea => (3, 2),
                     },
-                    // me land up land down land left sea
                     Sea => match right {
                         // me land up land down land left sea right land
                         Land => (1, 2),
@@ -127,16 +122,13 @@ fn texture_coordinates(
                         Sea => (9, 2),
                     },
                 },
-                // me land up land down sea
                 Sea => match left {
-                    // me land up land down sea left land
                     Land => match right {
                          // me land up land down sea left land right land
                         Land => (2, 3),
                          // me land up land down sea left land right sea
                         Sea => (3, 3),
                     },
-                    // me land up land down sea left sea
                     Sea => match right {
                         // me land up land down sea left sea right land
                         Land => (1, 3),
@@ -145,18 +137,14 @@ fn texture_coordinates(
                     },
                 },
             },
-            // me land up sea
             Sea => match down {
-                // me land up sea down land
                 Land => match left {
-                    // me land up sea down land left land
                     Land => match right {
                         // me land up sea down land left land right land
                         Land => (2, 1),
                         // me land up sea down land left land right sea
                         Sea => (3, 1),
                     },
-                    // me land up sea down land left sea
                     Sea => match right {
                         // me land up sea down land left sea right land
                         Land => (1, 1),
@@ -164,16 +152,13 @@ fn texture_coordinates(
                         Sea => (6, 1),
                     },
                 },
-                // me land up sea down sea
                 Sea => match left {
-                    // me land up sea down sea left land
                     Land => match right {
                         // me land up sea down sea left land right land
                         Land => (6, 5),
                         // me land up sea down sea left land right sea
                         Sea => (7, 5),
                     },
-                    // me land up sea down sea left sea
                     Sea => match right {
                         // me land up sea down sea left sea right land
                         Land => (5, 5),
@@ -183,81 +168,40 @@ fn texture_coordinates(
                 },
             },
         },
-        //me sea
         Sea => match up {
-            // me sea up land
             Land => match down {
-                // me sea up land down land
-                Land => match left {
-                    // me sea up land down land left land
-                    Land => match right {
-                        // me sea up land down land left land right land
-                        Land => (0, 0),
-                        // me sea up land down land left land right sea
-                        Sea => (0, 0),
-                    },
-                    // me sea up land down land left sea
-                    Sea => match right {
-                        // me sea up land down land left sea right land
-                        Land => (0, 0),
-                        // me sea up land down land left sea right sea
-                        Sea => (0, 0),
-                    },
-                },
-                // me sea up land down sea
+                Land => (0, 0),
                 Sea => match left {
-                    // me sea up land down sea left land
                     Land => match right {
                          // me sea up land down sea left land right land
                         Land => (0, 0),
                          // me sea up land down sea left land right sea
-                        Sea => (0, 0),
+                        Sea => (7, 3),
                     },
-                    // me sea up land down sea left sea
                     Sea => match right {
                         // me sea up land down sea left sea right land
-                        Land => (0, 0),
+                        Land => (5, 3),
                         // me sea up land down sea left sea right sea
                         Sea => (0, 0),
                     },
                 },
             },
-            // me sea up sea
             Sea => match down {
-                // me sea up sea down land
                 Land => match left {
-                    // me sea up sea down land left land
                     Land => match right {
                         // me sea up sea down land left land right land
                         Land => (0, 0),
                         // me sea up sea down land left land right sea
-                        Sea => (0, 0),
+                        Sea => (7, 1),
                     },
-                    // me sea up sea down land left sea
                     Sea => match right {
                         // me sea up sea down land left sea right land
-                        Land => (0, 0),
+                        Land => (5, 1),
                         // me sea up sea down land left sea left land
                         Sea => (0, 0),
                     },
                 },
-                // me sea up sea down sea
-                Sea => match left {
-                    // me sea up sea down sea left land
-                    Land => match right {
-                        // me sea up sea down sea left land right land
-                        Land => (0, 0),
-                        // me sea up sea down sea left land right sea
-                        Sea => (0, 0),
-                    },
-                    // me sea up sea down sea left sea
-                    Sea => match right {
-                        // me sea up sea down sea left sea right land
-                        Land => (0, 0),
-                        // me sea up sea down sea left sea right sea
-                        Sea => (0, 0),
-                    },
-                },
+                Sea => (0, 0),
             },
         },
     }
