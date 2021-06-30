@@ -7,6 +7,7 @@ use TileType::{Land, Sea};
 mod land_mass_generator;
 mod selection;
 mod tile_map;
+mod tile_selector;
 
 #[macroquad::main("Texture")]
 async fn main() {
@@ -124,9 +125,9 @@ fn texture_coordinates(
                 },
                 Sea => match left {
                     Land => match right {
-                         // me land up land down sea left land right land
+                        // me land up land down sea left land right land
                         Land => (2, 3),
-                         // me land up land down sea left land right sea
+                        // me land up land down sea left land right sea
                         Sea => (3, 3),
                     },
                     Sea => match right {
@@ -173,9 +174,9 @@ fn texture_coordinates(
                 Land => (0, 0),
                 Sea => match left {
                     Land => match right {
-                         // me sea up land down sea left land right land
+                        // me sea up land down sea left land right land
                         Land => (0, 0),
-                         // me sea up land down sea left land right sea
+                        // me sea up land down sea left land right sea
                         Sea => (7, 3),
                     },
                     Sea => match right {
@@ -210,12 +211,13 @@ fn texture_coordinates(
 fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawTextureParams {
     const TILE_PIXEL_LEN: f32 = 16f32;
     let my_tile_type = tile_map.get_tile(x, y).unwrap();
-    let up_tile  = tile_map.get_tile(x, y - 1).unwrap_or(&TileType::Sea);
+    let up_tile = tile_map.get_tile(x, y - 1).unwrap_or(&TileType::Sea);
     let down_tile = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
     let left_tile = tile_map.get_tile(x - 1, y).unwrap_or(&TileType::Sea);
     let right_tile = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
 
-    let (x_coord, y_coord) = texture_coordinates(my_tile_type, up_tile, down_tile, left_tile, right_tile);
+    let (x_coord, y_coord) =
+        texture_coordinates(my_tile_type, up_tile, down_tile, left_tile, right_tile);
 
     DrawTextureParams {
         source: Some(Rect {
