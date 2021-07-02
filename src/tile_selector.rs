@@ -1,28 +1,39 @@
 use std::collections::HashMap;
 
+use TileType::{Land, Sea};
+
 use crate::tile_map::TileType;
 
 #[derive(Eq, PartialEq, Hash)]
-struct TileIntersection {
+struct Dirs {
     nw: TileType,
     ne: TileType,
     sw: TileType,
     se: TileType,
 }
 
-struct TileSelector(HashMap<TileIntersection, (i32, i32)>);
+struct TileSelector(HashMap<Dirs, (i32, i32)>);
 
 impl TileSelector {
     pub fn new() -> Self {
         let mut map = HashMap::new();
         map.insert(
-            TileIntersection {
-                nw: TileType::Sea,
-                ne: TileType::Sea,
-                sw: TileType::Sea,
-                se: TileType::Sea,
+            Dirs {
+                nw: Sea,
+                ne: Sea,
+                sw: Sea,
+                se: Sea,
             },
             (3, 3),
+        );
+        map.insert(
+            Dirs {
+                nw: Land,
+                ne: Sea,
+                sw: Sea,
+                se: Sea,
+            },
+            (2, 3),
         );
         Self(map)
     }
