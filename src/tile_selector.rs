@@ -17,24 +17,9 @@ struct TileSelector(HashMap<Dirs, (i32, i32)>);
 impl TileSelector {
     pub fn new() -> Self {
         let mut map = HashMap::new();
-        map.insert(
-            Dirs {
-                nw: Sea,
-                ne: Sea,
-                sw: Sea,
-                se: Sea,
-            },
-            (3, 3),
-        );
-        map.insert(
-            Dirs {
-                nw: Land,
-                ne: Sea,
-                sw: Sea,
-                se: Sea,
-            },
-            (2, 3),
-        );
+        #[rustfmt::skip]
+        map.insert( Dirs { nw: Sea,  ne: Sea,  sw: Sea,  se: Sea },  (3, 3));
+        map.insert( Dirs { nw: Land, ne: Sea,  sw: Sea,  se: Sea }, (2, 3));
         Self(map)
     }
 }
