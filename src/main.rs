@@ -90,141 +90,25 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
     let tile_selector = TileSelector::new();
     for y in 0..tile_map.width as i32 {
         for x in 0..tile_map.width as i32 {
-            let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::Sea).clone();
-            let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea).clone();
-            let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea).clone();
-            let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea).clone();
-            let coords = tile_selector.select_tile(nw, ne, sw, se); // no no no not here in texture_params look at diff before this commit
             draw_texture_ex(
                 *texture,
                 x as f32 * tile_len,
                 y as f32 * tile_len,
                 WHITE,
-                texture_params(coords.0, coords.1, tile_len, tile_map),
+                texture_params(x, y, tile_len, tile_map, &tile_selector),
             );
         }
     }
 }
 
-fn texture_coordinates(
-    me: &TileType,
-    up: &TileType,
-    down: &TileType,
-    left: &TileType,
-    right: &TileType,
-) -> (i32, i32) {
-    match me {
-        Land => match up {
-            Land => match down {
-                Land => match left {
-                    Land => match right {
-                        // me land up land down land left land right land
-                        Land => (2, 2),
-                        // me land up land down land left land right sea
-                        Sea => (3, 2),
-                    },
-                    Sea => match right {
-                        // me land up land down land left sea right land
-                        Land => (1, 2),
-                        // me land up land down land left sea right sea
-                        Sea => (9, 2),
-                    },
-                },
-                Sea => match left {
-                    Land => match right {
-                        // me land up land down sea left land right land
-                        Land => (2, 3),
-                        // me land up land down sea left land right sea
-                        Sea => (3, 3),
-                    },
-                    Sea => match right {
-                        // me land up land down sea left sea right land
-                        Land => (1, 3),
-                        // me land up land down sea left sea right sea
-                        Sea => (6, 3),
-                    },
-                },
-            },
-            Sea => match down {
-                Land => match left {
-                    Land => match right {
-                        // me land up sea down land left land right land
-                        Land => (2, 1),
-                        // me land up sea down land left land right sea
-                        Sea => (3, 1),
-                    },
-                    Sea => match right {
-                        // me land up sea down land left sea right land
-                        Land => (1, 1),
-                        // me land up sea down land left sea right sea
-                        Sea => (6, 1),
-                    },
-                },
-                Sea => match left {
-                    Land => match right {
-                        // me land up sea down sea left land right land
-                        Land => (6, 5),
-                        // me land up sea down sea left land right sea
-                        Sea => (7, 5),
-                    },
-                    Sea => match right {
-                        // me land up sea down sea left sea right land
-                        Land => (5, 5),
-                        // me land up sea down sea left sea right sea
-                        Sea => (2, 2),
-                    },
-                },
-            },
-        },
-        Sea => match up {
-            Land => match down {
-                Land => (0, 0),
-                Sea => match left {
-                    Land => match right {
-                        // me sea up land down sea left land right land
-                        Land => (0, 0),
-                        // me sea up land down sea left land right sea
-                        Sea => (7, 3),
-                    },
-                    Sea => match right {
-                        // me sea up land down sea left sea right land
-                        Land => (5, 3),
-                        // me sea up land down sea left sea right sea
-                        Sea => (0, 0),
-                    },
-                },
-            },
-            Sea => match down {
-                Land => match left {
-                    Land => match right {
-                        // me sea up sea down land left land right land
-                        Land => (0, 0),
-                        // me sea up sea down land left land right sea
-                        Sea => (7, 1),
-                    },
-                    Sea => match right {
-                        // me sea up sea down land left sea right land
-                        Land => (5, 1),
-                        // me sea up sea down land left sea left land
-                        Sea => (0, 0),
-                    },
-                },
-                Sea => (0, 0),
-            },
-        },
-    }
-}
-
-fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap) -> DrawTextureParams {
+fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap, tile_selector: &TileSelector) -> DrawTextureParams {
     const TILE_PIXEL_LEN: f32 = 16f32;
-    let my_tile_type = tile_map.get_tile(x, y).unwrap();
-    let up_tile = tile_map.get_tile(x, y - 1).unwrap_or(&TileType::Sea);
-    let down_tile = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
-    let left_tile = tile_map.get_tile(x - 1, y).unwrap_or(&TileType::Sea);
-    let right_tile = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
+    let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::Sea);
+    let ne = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
+    let sw = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
+    let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea);
 
-    let (x_coord, y_coord) =
-        texture_coordinates(my_tile_type, up_tile, down_tile, left_tile, right_tile);
+    let (x_coord, y_coord) = tile_selector.select_tile(*nw, *ne, *sw, *se);
 
     DrawTextureParams {
         source: Some(Rect {
