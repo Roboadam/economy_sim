@@ -94,7 +94,7 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
             let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea).clone();
             let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea).clone();
             let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea).clone();
-            let coords = tile_selector.select_tile(nw, ne, sw, se);
+            let coords = tile_selector.select_tile(nw, ne, sw, se); // no no no not here in texture_params look at diff before this commit
             draw_texture_ex(
                 *texture,
                 x as f32 * tile_len,
