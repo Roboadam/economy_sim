@@ -2,6 +2,7 @@ use crate::land_mass_generator::create_land_mass;
 use macroquad::prelude::*;
 use selection::Selection;
 use tile_map::{TileMap, TileType};
+use tile_selector::TileSelector;
 use TileType::{Land, Sea};
 
 mod land_mass_generator;
@@ -86,14 +87,20 @@ pub fn draw_selection(selection: &Selection, tile_len: f32) {
 }
 
 pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
+    let tile_selector = TileSelector::new();
     for y in 0..tile_map.width as i32 {
         for x in 0..tile_map.width as i32 {
+            let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::Sea).clone();
+            let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea).clone();
+            let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea).clone();
+            let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea).clone();
+            let coords = tile_selector.select_tile(nw, ne, sw, se);
             draw_texture_ex(
                 *texture,
                 x as f32 * tile_len,
                 y as f32 * tile_len,
                 WHITE,
-                texture_params(x, y, tile_len, tile_map),
+                texture_params(coords.0, coords.1, tile_len, tile_map),
             );
         }
     }
