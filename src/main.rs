@@ -113,7 +113,6 @@ fn texture_params(
     let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
     let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
     let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea);
-    // println!("nw: {:?}, ne: {:?}, sw: {:?}, se: {:?}", nw, ne, sw, se);
 
     let (x_coord, y_coord) = tile_selector.select_tile(*nw, *ne, *sw, *se);
 
