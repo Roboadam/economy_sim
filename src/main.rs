@@ -12,23 +12,23 @@ mod tile_selector;
 
 #[macroquad::main("Texture")]
 async fn main() {
-    let texture: Texture2D = load_texture("textures/land_tilemap.png").await.unwrap();
-    texture.set_filter(FilterMode::Nearest);
-    const TILES_PER_SIDE: usize = 16;
+    let texture_atlas: Texture2D = load_texture("textures/land_tilemap.png").await.unwrap();
+    texture_atlas.set_filter(FilterMode::Nearest);
+    const MAP_WIDTH_IN_TILES: usize = 16;
 
-    let mut selection = Selection::new(TILES_PER_SIDE);
+    let mut selection = Selection::new(MAP_WIDTH_IN_TILES);
 
-    let mut tile_map = TileMap::new(TILES_PER_SIDE);
+    let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
 
     loop {
         clear_background(LIGHTGRAY);
-        let screen_min_len = if screen_height() < screen_width() {
+        let screen_width_in_pixels = if screen_height() > screen_width() {
             screen_height()
         } else {
             screen_width()
         };
-        let tile_len = screen_min_len / TILES_PER_SIDE as f32;
+        let tile_width_in_screen_pixels = screen_width_in_pixels / MAP_WIDTH_IN_TILES as f32;
 
         if is_key_pressed(KeyCode::W) || is_key_pressed(KeyCode::Up) {
             selection.up();
@@ -60,8 +60,8 @@ async fn main() {
             }
         }
 
-        draw_tile_map(&tile_map, tile_len, &texture);
-        draw_selection(&selection, tile_len);
+        draw_tile_map(&tile_map, tile_width_in_screen_pixels, &texture_atlas);
+        draw_selection(&selection, tile_width_in_screen_pixels);
 
         next_frame().await
     }
@@ -86,16 +86,16 @@ pub fn draw_selection(selection: &Selection, tile_len: f32) {
     );
 }
 
-pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
+pub fn draw_tile_map(tile_map: &TileMap, tile_width_in_screen_pixels: f32, texture_atlas: &Texture2D) {
     let tile_selector = TileSelector::new();
     for y in 0..tile_map.width as i32 {
         for x in 0..tile_map.width as i32 {
             draw_texture_ex(
-                *texture,
-                x as f32 * tile_len,
-                y as f32 * tile_len,
+                *texture_atlas,
+                x as f32 * tile_width_in_screen_pixels,
+                y as f32 * tile_width_in_screen_pixels,
                 WHITE,
-                texture_params(x, y, tile_len, tile_map, &tile_selector),
+                texture_params(x, y, tile_width_in_screen_pixels, tile_map, &tile_selector),
             );
         }
     }
