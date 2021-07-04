@@ -19,6 +19,7 @@ impl TileSelector {
     pub fn select_tile(&self, nw: TileType, ne: TileType, sw: TileType, se: TileType) -> (i32, i32) {
         let result = self.0.get(&Dirs {nw, ne, sw, se});
         let result = result.unwrap_or(&(0, 0));
+        // println!("{:?}", result);
         return result.clone();
     }
 

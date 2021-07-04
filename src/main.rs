@@ -101,12 +101,19 @@ pub fn draw_tile_map(tile_map: &TileMap, tile_len: f32, texture: &Texture2D) {
     }
 }
 
-fn texture_params(x: i32, y: i32, tile_len: f32, tile_map: &TileMap, tile_selector: &TileSelector) -> DrawTextureParams {
+fn texture_params(
+    x: i32,
+    y: i32,
+    tile_len: f32,
+    tile_map: &TileMap,
+    tile_selector: &TileSelector,
+) -> DrawTextureParams {
     const TILE_PIXEL_LEN: f32 = 16f32;
     let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::Sea);
-    let ne = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
-    let sw = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
+    let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
+    let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
     let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea);
+    // println!("nw: {:?}, ne: {:?}, sw: {:?}, se: {:?}", nw, ne, sw, se);
 
     let (x_coord, y_coord) = tile_selector.select_tile(*nw, *ne, *sw, *se);
 

@@ -1,4 +1,4 @@
-#[derive(PartialEq, Eq, Hash, Copy, Clone)]
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum TileType {
     Land,
     Sea,
