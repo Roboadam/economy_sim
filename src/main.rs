@@ -17,7 +17,7 @@ async fn main() {
 
     let texture_atlas: Texture2D = load_texture("textures/land_tilemap.png").await.unwrap();
     texture_atlas.set_filter(FilterMode::Nearest);
-    const MAP_WIDTH_IN_TILES: usize = 16;
+    const MAP_WIDTH_IN_TILES: usize = 160;
 
     let mut selection = Selection::new(MAP_WIDTH_IN_TILES);
 
