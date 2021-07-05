@@ -27,43 +27,38 @@ async fn main() {
     let mut target = vec2(200., 200.);
 
     loop {
-        set_camera(&Camera2D {
-            zoom: vec2(0.008, 0.008),
-            target: target,
-            render_target: Some(rt),
-            ..Default::default()
-        });
-
-        clear_background(LIGHTGRAY);
-
         if is_key_pressed(KeyCode::W) {
             selection.up();
+            target.y = (selection.y * 16 + 126) as f32;
         }
         if is_key_pressed(KeyCode::S) {
             selection.down();
+            target.y = (selection.y * 16 + 126) as f32;
         }
         if is_key_pressed(KeyCode::A) {
             selection.left();
+            target.x = (selection.x * 16 + 126) as f32;
         }
         if is_key_pressed(KeyCode::D) {
             selection.right();
+            target.x = (selection.x * 16 + 126) as f32;
         }
-        if is_key_down(KeyCode::Up) {
-            target.y -= 1.;
-            println!("{}", target)
-        }
-        if is_key_down(KeyCode::Down) {
-            target.y += 1.;
-            println!("{}", target)
-        }
-        if is_key_down(KeyCode::Left) {
-            target.x -= 1.;
-            println!("{}", target)
-        }
-        if is_key_down(KeyCode::Right) {
-            target.x += 1.;
-            println!("{}", target)
-        }
+        // if is_key_down(KeyCode::Up) {
+        //     target.y -= 1.;
+        //     println!("target:{} selection:{:?}", target, selection)
+        // }
+        // if is_key_down(KeyCode::Down) {
+        //     target.y += 1.;
+        //     println!("target:{} selection:{:?}", target, selection)
+        // }
+        // if is_key_down(KeyCode::Left) {
+        //     target.x -= 1.;
+        //     println!("target:{} selection:{:?}", target, selection)
+        // }
+        // if is_key_down(KeyCode::Right) {
+        //     target.x += 1.;
+        //     println!("target:{} selection:{:?}", target, selection)
+        // }
         if is_key_pressed(KeyCode::C) {
             for y in 0..tile_map.width as i32 {
                 for x in 0..tile_map.width as i32 {
@@ -81,6 +76,15 @@ async fn main() {
                 tile_map.set_tile(selection.x, selection.y, new_tile_type)
             }
         }
+
+        set_camera(&Camera2D {
+            zoom: vec2(0.008, 0.008),
+            target: target,
+            render_target: Some(rt),
+            ..Default::default()
+        });
+
+        clear_background(LIGHTGRAY);
 
         draw_tile_map(&tile_map, 16., &texture_atlas);
         draw_selection(&selection, 16.);

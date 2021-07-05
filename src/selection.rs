@@ -1,4 +1,6 @@
 use macroquad::prelude::*;
+
+#[derive(Debug)]
 pub struct Selection {
     max_index: usize,
     pub x: i32,
