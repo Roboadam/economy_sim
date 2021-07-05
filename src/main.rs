@@ -12,6 +12,11 @@ mod tile_selector;
 
 #[macroquad::main("Texture")]
 async fn main() {
+    let mut screen_w = 1;
+    let mut screen_h = 1;
+    let mut rt = render_target(screen_w, screen_h);
+    rt.texture.set_filter(FilterMode::Nearest);
+
     let texture_atlas: Texture2D = load_texture("textures/land_tilemap.png").await.unwrap();
     texture_atlas.set_filter(FilterMode::Nearest);
     const MAP_WIDTH_IN_TILES: usize = 16;
@@ -22,6 +27,19 @@ async fn main() {
     create_land_mass(&mut tile_map);
 
     loop {
+        if screen_w != screen_width() as u32 || screen_h != screen_w {
+            screen_w = screen_width() as u32;
+            screen_h = screen_height() as u32;
+            rt = render_target(screen_w, screen_h);
+            rt.texture.set_filter(FilterMode::Nearest);
+        }
+        set_camera(&Camera2D {
+            zoom: vec2(0.002, 0.002),
+            target: vec2(400.0, 400.0),
+            render_target: Some(rt),
+            ..Default::default()
+        });
+
         clear_background(LIGHTGRAY);
         let screen_width_in_pixels = if screen_height() > screen_width() {
             screen_height()
@@ -62,6 +80,19 @@ async fn main() {
 
         draw_tile_map(&tile_map, tile_width_in_screen_pixels, &texture_atlas);
         draw_selection(&selection, tile_width_in_screen_pixels);
+
+        set_default_camera();
+        clear_background(WHITE);
+        draw_texture_ex(
+            rt.texture,
+            0.,
+            0.,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(screen_width(), screen_height())),
+                ..Default::default()
+            },
+        );
 
         next_frame().await
     }
