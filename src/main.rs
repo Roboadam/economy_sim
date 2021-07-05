@@ -12,9 +12,7 @@ mod tile_selector;
 
 #[macroquad::main("Texture")]
 async fn main() {
-    let mut screen_w = 1;
-    let mut screen_h = 1;
-    let mut rt = render_target(screen_w, screen_h);
+    let rt = render_target(2048, 2048);
     rt.texture.set_filter(FilterMode::Nearest);
 
     let texture_atlas: Texture2D = load_texture("textures/land_tilemap.png").await.unwrap();
@@ -26,39 +24,45 @@ async fn main() {
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
 
+    let mut target = vec2(200., 200.);
+
     loop {
-        if screen_w != screen_width() as u32 || screen_h != screen_w {
-            screen_w = screen_width() as u32;
-            screen_h = screen_height() as u32;
-            rt = render_target(screen_w, screen_h);
-            rt.texture.set_filter(FilterMode::Nearest);
-        }
         set_camera(&Camera2D {
-            zoom: vec2(0.002, 0.002),
-            target: vec2(400.0, 400.0),
+            zoom: vec2(0.008, 0.008),
+            target: target,
             render_target: Some(rt),
             ..Default::default()
         });
 
         clear_background(LIGHTGRAY);
-        let screen_width_in_pixels = if screen_height() > screen_width() {
-            screen_height()
-        } else {
-            screen_width()
-        };
-        let tile_width_in_screen_pixels = screen_width_in_pixels / MAP_WIDTH_IN_TILES as f32;
 
-        if is_key_pressed(KeyCode::W) || is_key_pressed(KeyCode::Up) {
+        if is_key_pressed(KeyCode::W) {
             selection.up();
         }
-        if is_key_pressed(KeyCode::S) || is_key_pressed(KeyCode::Down) {
+        if is_key_pressed(KeyCode::S) {
             selection.down();
         }
-        if is_key_pressed(KeyCode::A) || is_key_pressed(KeyCode::Left) {
+        if is_key_pressed(KeyCode::A) {
             selection.left();
         }
-        if is_key_pressed(KeyCode::D) || is_key_pressed(KeyCode::Right) {
+        if is_key_pressed(KeyCode::D) {
             selection.right();
+        }
+        if is_key_down(KeyCode::Up) {
+            target.y -= 1.;
+            println!("{}", target)
+        }
+        if is_key_down(KeyCode::Down) {
+            target.y += 1.;
+            println!("{}", target)
+        }
+        if is_key_down(KeyCode::Left) {
+            target.x -= 1.;
+            println!("{}", target)
+        }
+        if is_key_down(KeyCode::Right) {
+            target.x += 1.;
+            println!("{}", target)
         }
         if is_key_pressed(KeyCode::C) {
             for y in 0..tile_map.width as i32 {
@@ -78,18 +82,23 @@ async fn main() {
             }
         }
 
-        draw_tile_map(&tile_map, tile_width_in_screen_pixels, &texture_atlas);
-        draw_selection(&selection, tile_width_in_screen_pixels);
+        draw_tile_map(&tile_map, 16., &texture_atlas);
+        draw_selection(&selection, 16.);
 
         set_default_camera();
         clear_background(WHITE);
+        let max_width = if screen_height() > screen_width() {
+            screen_height()
+        } else {
+            screen_width()
+        };
         draw_texture_ex(
             rt.texture,
             0.,
             0.,
             WHITE,
             DrawTextureParams {
-                dest_size: Some(vec2(screen_width(), screen_height())),
+                dest_size: Some(vec2(max_width, max_width)),
                 ..Default::default()
             },
         );
