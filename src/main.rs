@@ -16,6 +16,7 @@ async fn main() {
     let rt = pixel_perfect_render_target();
     let texture_atlas = open_texture_atlas("textures/land_tilemap.png").await;
     const MAP_WIDTH_IN_TILES: usize = 160;
+    const TILE_SIZE: i32 = 16;
 
     let mut selection = Selection::new(MAP_WIDTH_IN_TILES);
 
@@ -27,19 +28,19 @@ async fn main() {
     loop {
         if is_key_pressed(KeyCode::W) {
             selection.up();
-            target.y = ((selection.y - 5) * 16 + 126) as f32;
+            target.y = ((selection.y - 5) * TILE_SIZE + 126) as f32;
         }
         if is_key_pressed(KeyCode::S) {
             selection.down();
-            target.y = ((selection.y - 5) * 16 + 126) as f32;
+            target.y = ((selection.y - 5) * TILE_SIZE + 126) as f32;
         }
         if is_key_pressed(KeyCode::A) {
             selection.left();
-            target.x = ((selection.x - 5) * 16 + 126) as f32;
+            target.x = ((selection.x - 5) * TILE_SIZE + 126) as f32;
         }
         if is_key_pressed(KeyCode::D) {
             selection.right();
-            target.x = ((selection.x - 5) * 16 + 126) as f32;
+            target.x = ((selection.x - 5) * TILE_SIZE + 126) as f32;
         }
         if is_key_pressed(KeyCode::C) {
             for y in 0..tile_map.width as i32 {
