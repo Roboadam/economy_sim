@@ -14,7 +14,7 @@ async fn main() {
     let rt = pixel_perfect_render_target();
     let texture_atlas = open_texture_atlas("textures/land_tilemap.png").await;
     const MAP_WIDTH_IN_TILES: usize = 160;
-    const SPEED: f32 = 1.;
+    const SPEED: f32 = 100.;
 
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
@@ -22,17 +22,20 @@ async fn main() {
     let mut target = vec2(200., 200.);
 
     loop {
+        if is_key_pressed(KeyCode::F) {
+            println!("FPS: {}", get_fps());
+        }
         if is_key_down(KeyCode::W) {
-            target.y -= SPEED;
+            target.y -= SPEED * get_frame_time();
         }
         if is_key_down(KeyCode::S) {
-            target.y += SPEED;
+            target.y += SPEED * get_frame_time();
         }
         if is_key_down(KeyCode::A) {
-            target.x -= SPEED;
+            target.x -= SPEED * get_frame_time();
         }
         if is_key_down(KeyCode::D) {
-            target.x += SPEED;
+            target.x += SPEED * get_frame_time();
         }
         if is_key_pressed(KeyCode::C) {
             for y in 0..tile_map.width as i32 {
