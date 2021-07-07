@@ -1,6 +1,9 @@
 use macroquad::prelude::*;
 
-use crate::{tile_map::{TileMap, TileType}, tile_selector::TileSelector};
+use crate::{
+    tile_map::{TileMap, TileType},
+    tile_selector::TileSelector,
+};
 
 pub fn pixel_perfect_render_target() -> RenderTarget {
     let rt = render_target(2048, 2048);
@@ -8,10 +11,17 @@ pub fn pixel_perfect_render_target() -> RenderTarget {
     rt
 }
 
-pub fn draw_tile_map(tile_map: &TileMap, tile_width_in_screen_pixels: f32, texture_atlas: &Texture2D) {
+pub fn draw_tile_map(
+    tile_map: &TileMap,
+    tile_width_in_screen_pixels: f32,
+    texture_atlas: &Texture2D,
+    center: Vec2,
+) {
+    let min_y = (center.y / tile_width_in_screen_pixels) as i32 - 8;
+    let min_x = (center.x / tile_width_in_screen_pixels) as i32 - 8;
     let tile_selector = TileSelector::new();
-    for y in 0..tile_map.width as i32 {
-        for x in 0..tile_map.width as i32 {
+    for y in min_y..(min_y + 20) as i32 {
+        for x in min_x..(min_x + 20) as i32 {
             draw_texture_ex(
                 *texture_atlas,
                 x as f32 * tile_width_in_screen_pixels,
