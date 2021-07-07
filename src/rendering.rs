@@ -20,8 +20,8 @@ pub fn draw_tile_map(
     let min_y = (center.y / tile_width_in_screen_pixels) as i32 - 8;
     let min_x = (center.x / tile_width_in_screen_pixels) as i32 - 8;
     let tile_selector = TileSelector::new();
-    for y in min_y..(min_y + 20) as i32 {
-        for x in min_x..(min_x + 20) as i32 {
+    for y in min_y..(min_y + 16) as i32 {
+        for x in min_x..(min_x + 16) as i32 {
             draw_texture_ex(
                 *texture_atlas,
                 x as f32 * tile_width_in_screen_pixels,
@@ -89,7 +89,7 @@ pub fn draw_texture_to_screen(texture: RenderTarget) {
     );
 }
 
-pub async fn open_texture_atlas(path: &str) -> Texture2D {
+pub async fn open_pixel_texture(path: &str) -> Texture2D {
     let texture_atlas = load_texture(path).await.unwrap();
     texture_atlas.set_filter(FilterMode::Nearest);
 

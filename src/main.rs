@@ -12,7 +12,8 @@ mod tile_selector;
 #[macroquad::main("Texture")]
 async fn main() {
     let rt = pixel_perfect_render_target();
-    let texture_atlas = open_texture_atlas("textures/land_tilemap.png").await;
+    let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
+    let player_texture = open_pixel_texture("textures/player.png").await;
     const MAP_WIDTH_IN_TILES: usize = 160;
     const SPEED: f32 = 100.;
 
@@ -49,6 +50,20 @@ async fn main() {
         draw_to_texture(rt, target);
         clear_background(LIGHTGRAY);
         draw_tile_map(&tile_map, 16., &texture_atlas, target);
+        draw_texture_ex(
+            player_texture,
+            target.x,
+            target.y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(
+                    player_texture.width() / 2.,
+                    player_texture.height() / 2.,
+                )),
+                ..Default::default()
+            },
+        );
+        draw_rectangle(target.x, target.y, 2., 2., RED);
         draw_texture_to_screen(rt);
 
         next_frame().await
