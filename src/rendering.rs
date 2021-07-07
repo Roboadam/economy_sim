@@ -1,30 +1,11 @@
 use macroquad::prelude::*;
 
-use crate::{selection::Selection, tile_map::{TileMap, TileType}, tile_selector::TileSelector};
+use crate::{tile_map::{TileMap, TileType}, tile_selector::TileSelector};
 
 pub fn pixel_perfect_render_target() -> RenderTarget {
     let rt = render_target(2048, 2048);
     rt.texture.set_filter(FilterMode::Nearest);
     rt
-}
-
-pub fn draw_selection(selection: &Selection, tile_len: f32) {
-    draw_rectangle_lines(
-        selection.x as f32 * tile_len + 2.5,
-        selection.y as f32 * tile_len + 2.5,
-        tile_len - 5.,
-        tile_len - 5.,
-        5.,
-        WHITE,
-    );
-    draw_rectangle_lines(
-        selection.x as f32 * tile_len + 2.,
-        selection.y as f32 * tile_len + 2.,
-        tile_len - 4.,
-        tile_len - 4.,
-        3.,
-        BLACK,
-    );
 }
 
 pub fn draw_tile_map(tile_map: &TileMap, tile_width_in_screen_pixels: f32, texture_atlas: &Texture2D) {
