@@ -13,30 +13,30 @@ mod tile_selector;
 async fn main() {
     let rt = pixel_perfect_render_target();
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
-    let player_texture = open_pixel_texture("textures/player.png").await;
+    // let player_texture = open_pixel_texture("textures/player.png").await;
     const MAP_WIDTH_IN_TILES: usize = 160;
-    const SPEED: f32 = 100.;
+    const SPEED: f32 = 10.;
 
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
 
-    let mut target = vec2(200., 200.);
+    let mut player_coords: (f32, f32) = (10., 10.);
 
     loop {
         if is_key_pressed(KeyCode::F) {
             println!("FPS: {}", get_fps());
         }
         if is_key_down(KeyCode::W) {
-            target.y -= SPEED * get_frame_time();
+            player_coords.1 -= SPEED * get_frame_time();
         }
         if is_key_down(KeyCode::S) {
-            target.y += SPEED * get_frame_time();
+            player_coords.1 += SPEED * get_frame_time();
         }
         if is_key_down(KeyCode::A) {
-            target.x -= SPEED * get_frame_time();
+            player_coords.0 -= SPEED * get_frame_time();
         }
         if is_key_down(KeyCode::D) {
-            target.x += SPEED * get_frame_time();
+            player_coords.0 += SPEED * get_frame_time();
         }
         if is_key_pressed(KeyCode::C) {
             for y in 0..tile_map.width as i32 {
@@ -47,23 +47,29 @@ async fn main() {
             create_land_mass(&mut tile_map);
         }
 
-        draw_to_texture(rt, target);
+        draw_to_texture(rt, player_coords, 16.);
         clear_background(LIGHTGRAY);
-        draw_tile_map(&tile_map, 16., &texture_atlas, target);
-        draw_texture_ex(
-            player_texture,
-            target.x,
-            target.y,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(
-                    player_texture.width() / 2.,
-                    player_texture.height() / 2.,
-                )),
-                ..Default::default()
-            },
+        draw_tile_map(
+            &tile_map,
+            16.,
+            &texture_atlas,
+            player_coords,
+            screen_dimension_in_tiles(16.),
         );
-        draw_rectangle(target.x, target.y, 2., 2., RED);
+        // draw_texture_ex(
+        //     player_texture,
+        //     target.x,
+        //     target.y,
+        //     WHITE,
+        //     DrawTextureParams {
+        //         dest_size: Some(vec2(
+        //             player_texture.width() / 2.,
+        //             player_texture.height() / 2.,
+        //         )),
+        //         ..Default::default()
+        //     },
+        // );
+        // draw_rectangle(target.x, target.y, 2., 2., RED);
         draw_texture_to_screen(rt);
 
         next_frame().await
