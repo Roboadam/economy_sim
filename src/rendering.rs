@@ -5,6 +5,17 @@ use crate::{
     tile_selector::TileSelector,
 };
 
+pub struct ScreenData {
+    screen_dimensions: (i32, i32),
+    render_target: RenderTarget,
+}
+
+impl ScreenData {
+    pub fn refresh(&mut self, screen_width: f32, screen_height: f32){
+        
+    }
+}
+
 pub fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f32) -> RenderTarget {
     let width = screen_dimensions.0 as u32 * tile_width as u32;
     let height = screen_dimensions.1 as u32 * tile_width as u32;
