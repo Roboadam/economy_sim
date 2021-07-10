@@ -17,7 +17,11 @@ async fn main() {
     const TILES_ON_SCREEN: i32 = 10;
 
     let screen_dimensions = screen_dimension_in_tiles(TILES_ON_SCREEN);
-    println!("screen_dimensions: {:?} - {}", screen_dimensions, 10./screen_dimensions.1 as f32);
+    println!(
+        "screen_dimensions: {:?} - {}",
+        screen_dimensions,
+        10. / screen_dimensions.1 as f32
+    );
     let rt = pixel_perfect_render_target(screen_dimensions, TILE_WIDTH);
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
     // let player_texture = open_pixel_texture("textures/player.png").await;
@@ -51,7 +55,7 @@ async fn main() {
             create_land_mass(&mut tile_map);
         }
 
-        draw_to_texture(rt, player_coords, TILE_WIDTH);
+        draw_to_texture(rt, player_coords, TILE_WIDTH, screen_dimensions);
         clear_background(LIGHTGRAY);
         draw_tile_map(
             &tile_map,

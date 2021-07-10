@@ -8,6 +8,7 @@ use crate::{
 pub fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f32) -> RenderTarget {
     let width = screen_dimensions.0 as u32 * tile_width as u32;
     let height = screen_dimensions.1 as u32 * tile_width as u32;
+    println!("render target width & height: {}x{}", width, height);
     let rt = render_target(width, height);
     rt.texture.set_filter(FilterMode::Nearest);
     rt
@@ -18,7 +19,6 @@ pub fn screen_dimension_in_tiles(tiles_on_screen: i32) -> (i32, i32) {
     if aspect_ratio > 1. {
         let width = (aspect_ratio * tiles_on_screen as f32).ceil();
         (width as i32, tiles_on_screen)
-
     } else {
         let height = (1. / aspect_ratio * tiles_on_screen as f32).ceil();
         (tiles_on_screen, height as i32)
@@ -40,7 +40,6 @@ pub fn draw_tile_map(
     let min_y = player_coords.1 as i32 - screen_dimensions.1 / 2;
     let max_x = min_x + screen_dimensions.0 + 1;
     let max_y = min_y + screen_dimensions.1 + 1;
-    // println!("{}, {}, {}, {}", min_x, min_y, max_x, max_y);
 
     let tile_selector = TileSelector::new();
     for y in min_y..max_y {
@@ -56,9 +55,17 @@ pub fn draw_tile_map(
     }
 }
 
-pub fn draw_to_texture(texture: RenderTarget, player_coords: (f32, f32), tile_width: f32) {
+pub fn draw_to_texture(
+    texture: RenderTarget,
+    player_coords: (f32, f32),
+    tile_width: f32,
+    screen_dimensions: (i32, i32),
+) {
     set_camera(&Camera2D {
-        zoom: vec2(1. / tile_width, 1. / tile_width),
+        zoom: vec2(
+            2. / (tile_width * screen_dimensions.0 as f32),
+            2. / (tile_width * screen_dimensions.1 as f32),
+        ),
         target: player_coords_to_target(player_coords, tile_width),
         render_target: Some(texture),
         ..Default::default()
