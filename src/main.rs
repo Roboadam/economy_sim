@@ -11,12 +11,16 @@ mod tile_selector;
 
 #[macroquad::main("Texture")]
 async fn main() {
-    let rt = pixel_perfect_render_target();
-    let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
-    // let player_texture = open_pixel_texture("textures/player.png").await;
     const MAP_WIDTH_IN_TILES: usize = 160;
     const SPEED: f32 = 10.;
+    const TILE_WIDTH: f32 = 16.;
+    const TILES_ON_SCREEN: i32 = 10;
 
+    let screen_dimensions = screen_dimension_in_tiles(TILES_ON_SCREEN);
+    println!("screen_dimensions: {:?} - {}", screen_dimensions, 10./screen_dimensions.1 as f32);
+    let rt = pixel_perfect_render_target(screen_dimensions, TILE_WIDTH);
+    let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
+    // let player_texture = open_pixel_texture("textures/player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
 
@@ -47,14 +51,14 @@ async fn main() {
             create_land_mass(&mut tile_map);
         }
 
-        draw_to_texture(rt, player_coords, 16.);
+        draw_to_texture(rt, player_coords, TILE_WIDTH);
         clear_background(LIGHTGRAY);
         draw_tile_map(
             &tile_map,
             16.,
             &texture_atlas,
             player_coords,
-            screen_dimension_in_tiles(16.),
+            screen_dimensions,
         );
         // draw_texture_ex(
         //     player_texture,

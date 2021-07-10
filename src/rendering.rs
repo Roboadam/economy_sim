@@ -5,16 +5,24 @@ use crate::{
     tile_selector::TileSelector,
 };
 
-pub fn pixel_perfect_render_target() -> RenderTarget {
-    let rt = render_target(2048, 2048);
+pub fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f32) -> RenderTarget {
+    let width = screen_dimensions.0 as u32 * tile_width as u32;
+    let height = screen_dimensions.1 as u32 * tile_width as u32;
+    let rt = render_target(width, height);
     rt.texture.set_filter(FilterMode::Nearest);
     rt
 }
 
-pub fn screen_dimension_in_tiles(tile_width: f32) -> (i32, i32) {
-    let height = screen_height() / tile_width;
-    let width = screen_width() / tile_width;
-    (width as i32, height as i32)
+pub fn screen_dimension_in_tiles(tiles_on_screen: i32) -> (i32, i32) {
+    let aspect_ratio = screen_width() / screen_height();
+    if aspect_ratio > 1. {
+        let width = (aspect_ratio * tiles_on_screen as f32).ceil();
+        (width as i32, tiles_on_screen)
+
+    } else {
+        let height = (1. / aspect_ratio * tiles_on_screen as f32).ceil();
+        (tiles_on_screen, height as i32)
+    }
 }
 
 pub fn player_coords_to_target(coords: (f32, f32), tile_width: f32) -> Vec2 {
@@ -50,7 +58,7 @@ pub fn draw_tile_map(
 
 pub fn draw_to_texture(texture: RenderTarget, player_coords: (f32, f32), tile_width: f32) {
     set_camera(&Camera2D {
-        // zoom: vec2(0.008, 0.008),
+        zoom: vec2(1. / tile_width, 1. / tile_width),
         target: player_coords_to_target(player_coords, tile_width),
         render_target: Some(texture),
         ..Default::default()
@@ -87,18 +95,13 @@ fn texture_params(
 pub fn draw_texture_to_screen(texture: RenderTarget) {
     set_default_camera();
     clear_background(WHITE);
-    let max_width = if screen_height() > screen_width() {
-        screen_height()
-    } else {
-        screen_width()
-    };
     draw_texture_ex(
         texture.texture,
         0.,
         0.,
         WHITE,
         DrawTextureParams {
-            dest_size: Some(vec2(max_width, max_width)),
+            dest_size: Some(vec2(screen_width(), screen_height())),
             ..Default::default()
         },
     );
