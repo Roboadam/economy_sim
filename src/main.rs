@@ -52,6 +52,12 @@ async fn main() {
             create_land_mass(&mut tile_map);
         }
 
+        if curr_screen_height != screen_height() as i32 || curr_screen_width != screen_width() as i32 {
+            screen_data.update_with_screen_size(screen_width(), screen_height());
+            curr_screen_width = screen_width() as i32;
+            curr_screen_height = screen_height() as i32;
+        }
+
         draw_to_texture(player_coords, &screen_data);
         clear_background(LIGHTGRAY);
         draw_tile_map(
