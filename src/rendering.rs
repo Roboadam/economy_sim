@@ -42,7 +42,8 @@ impl ScreenData {
     }
 
     pub fn update_with_screen_size(&mut self, screen_width: f32, screen_height: f32) {
-        self.screen_dimensions = screen_dimension_in_tiles(self.tiles_on_screen, screen_width, screen_height);
+        self.screen_dimensions =
+            screen_dimension_in_tiles(self.tiles_on_screen, screen_width, screen_height);
         self.render_target = pixel_perfect_render_target(self.screen_dimensions, self.tile_width);
     }
 }
@@ -55,7 +56,11 @@ fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f32) -
     rt
 }
 
-fn screen_dimension_in_tiles(tiles_on_screen: i32, screen_width: f32, screen_height: f32) -> (i32, i32) {
+fn screen_dimension_in_tiles(
+    tiles_on_screen: i32,
+    screen_width: f32,
+    screen_height: f32,
+) -> (i32, i32) {
     let aspect_ratio = screen_width / screen_height;
     if aspect_ratio > 1. {
         let width = (aspect_ratio * tiles_on_screen as f32).ceil();
@@ -97,10 +102,7 @@ pub fn draw_tile_map(
     }
 }
 
-pub fn draw_to_texture(
-    player_coords: (f32, f32),
-    screen_data: &ScreenData,
-) {
+pub fn draw_to_texture(player_coords: (f32, f32), screen_data: &ScreenData) {
     let screen_dimensions = screen_data.screen_dimensions();
     let render_target = screen_data.render_target();
     let tile_width = screen_data.tile_width();
