@@ -8,15 +8,46 @@ use crate::{
 pub struct ScreenData {
     screen_dimensions: (i32, i32),
     render_target: RenderTarget,
+    tiles_on_screen: i32,
+    tile_width: f32,
 }
 
 impl ScreenData {
-    pub fn refresh(&mut self, screen_width: f32, screen_height: f32){
-        
+    pub fn new(
+        tiles_on_screen: i32,
+        tile_width: f32,
+        screen_width: f32,
+        screen_height: f32,
+    ) -> Self {
+        let mut result = Self {
+            tiles_on_screen,
+            tile_width,
+            screen_dimensions: (0, 0),
+            render_target: pixel_perfect_render_target((0, 0), tile_width),
+        };
+        result.update_with_screen_size(screen_width, screen_height);
+        result
+    }
+
+    pub fn screen_dimensions(&self) -> (i32, i32) {
+        self.screen_dimensions
+    }
+
+    pub fn render_target(&self) -> &RenderTarget {
+        &self.render_target
+    }
+
+    pub fn tile_width(&self) -> f32 {
+        self.tile_width
+    }
+
+    pub fn update_with_screen_size(&mut self, screen_width: f32, screen_height: f32) {
+        self.screen_dimensions = screen_dimension_in_tiles(self.tiles_on_screen, screen_width, screen_height);
+        self.render_target = pixel_perfect_render_target(self.screen_dimensions, self.tile_width);
     }
 }
 
-pub fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f32) -> RenderTarget {
+fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f32) -> RenderTarget {
     let width = screen_dimensions.0 as u32 * tile_width as u32;
     let height = screen_dimensions.1 as u32 * tile_width as u32;
     println!("render target width & height: {}x{}", width, height);
@@ -25,8 +56,8 @@ pub fn pixel_perfect_render_target(screen_dimensions: (i32, i32), tile_width: f3
     rt
 }
 
-pub fn screen_dimension_in_tiles(tiles_on_screen: i32) -> (i32, i32) {
-    let aspect_ratio = screen_width() / screen_height();
+fn screen_dimension_in_tiles(tiles_on_screen: i32, screen_width: f32, screen_height: f32) -> (i32, i32) {
+    let aspect_ratio = screen_width / screen_height;
     if aspect_ratio > 1. {
         let width = (aspect_ratio * tiles_on_screen as f32).ceil();
         (width as i32, tiles_on_screen)
@@ -42,11 +73,12 @@ pub fn player_coords_to_target(coords: (f32, f32), tile_width: f32) -> Vec2 {
 
 pub fn draw_tile_map(
     tile_map: &TileMap,
-    tile_width: f32,
     texture_atlas: &Texture2D,
     player_coords: (f32, f32),
-    screen_dimensions: (i32, i32),
+    screen_data: &ScreenData,
 ) {
+    let screen_dimensions = screen_data.screen_dimensions();
+    let tile_width = screen_data.tile_width();
     let min_x = player_coords.0 as i32 - screen_dimensions.0 / 2;
     let min_y = player_coords.1 as i32 - screen_dimensions.1 / 2;
     let max_x = min_x + screen_dimensions.0 + 1;
@@ -67,18 +99,19 @@ pub fn draw_tile_map(
 }
 
 pub fn draw_to_texture(
-    texture: RenderTarget,
     player_coords: (f32, f32),
-    tile_width: f32,
-    screen_dimensions: (i32, i32),
+    screen_data: &ScreenData,
 ) {
+    let screen_dimensions = screen_data.screen_dimensions();
+    let render_target = screen_data.render_target();
+    let tile_width = screen_data.tile_width();
     set_camera(&Camera2D {
         zoom: vec2(
             2. / (tile_width * screen_dimensions.0 as f32),
             2. / (tile_width * screen_dimensions.1 as f32),
         ),
         target: player_coords_to_target(player_coords, tile_width),
-        render_target: Some(texture),
+        render_target: Some(*render_target),
         ..Default::default()
     });
 }
@@ -110,11 +143,11 @@ fn texture_params(
     }
 }
 
-pub fn draw_texture_to_screen(texture: RenderTarget) {
+pub fn draw_texture_to_screen(screen_data: &ScreenData) {
     set_default_camera();
     clear_background(WHITE);
     draw_texture_ex(
-        texture.texture,
+        screen_data.render_target().texture,
         0.,
         0.,
         WHITE,

@@ -16,8 +16,8 @@ async fn main() {
     const TILE_WIDTH: f32 = 16.;
     const TILES_ON_SCREEN: i32 = 10;
 
-    let screen_dimensions = screen_dimension_in_tiles(TILES_ON_SCREEN);
-    let rt = pixel_perfect_render_target(screen_dimensions, TILE_WIDTH);
+    let mut screen_data =
+        ScreenData::new(TILES_ON_SCREEN, TILE_WIDTH, screen_width(), screen_height());
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
     // let player_texture = open_pixel_texture("textures/player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
@@ -52,14 +52,13 @@ async fn main() {
             create_land_mass(&mut tile_map);
         }
 
-        draw_to_texture(rt, player_coords, TILE_WIDTH, screen_dimensions);
+        draw_to_texture(player_coords, &screen_data);
         clear_background(LIGHTGRAY);
         draw_tile_map(
             &tile_map,
-            16.,
             &texture_atlas,
             player_coords,
-            screen_dimensions,
+            &screen_data,
         );
         // draw_texture_ex(
         //     player_texture,
@@ -75,7 +74,7 @@ async fn main() {
         //     },
         // );
         // draw_rectangle(target.x, target.y, 2., 2., RED);
-        draw_texture_to_screen(rt);
+        draw_texture_to_screen(&screen_data);
 
         next_frame().await
     }
