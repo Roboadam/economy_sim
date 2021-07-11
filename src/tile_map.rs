@@ -2,6 +2,7 @@
 pub enum TileType {
     Land,
     Sea,
+    Building(i32),
 }
 
 pub struct TileMap {
