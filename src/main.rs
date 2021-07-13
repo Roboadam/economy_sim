@@ -1,9 +1,9 @@
-use crate::building_generator::generate_buildings;
 use crate::land_mass_generator::create_land_mass;
+use crate::{building_generator::generate_buildings, tile_map::BuildingType};
 use macroquad::prelude::*;
 use rendering::*;
 use tile_map::{TileMap, TileType};
-use TileType::Sea;
+// use TileType::Sea;
 
 mod building_generator;
 mod land_mass_generator;
@@ -24,7 +24,13 @@ async fn main() {
     let player_texture = open_pixel_texture("textures/player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
-    generate_buildings(&mut tile_map);
+    let businesses: Vec<_> = generate_buildings(&mut tile_map)
+        .iter()
+        .filter(|btype| match btype {
+            BuildingType::Business(_) => true,
+            _ => false,
+        })
+        .collect();
 
     let mut player_coords: (f32, f32) = (10., 10.);
     let mut curr_screen_width = screen_width() as i32;
@@ -47,13 +53,14 @@ async fn main() {
             player_coords.0 += SPEED * get_frame_time();
         }
         if is_key_pressed(KeyCode::C) {
-            for y in 0..tile_map.width as i32 {
-                for x in 0..tile_map.width as i32 {
-                    tile_map.set_tile(x, y, Sea);
-                }
-            }
-            create_land_mass(&mut tile_map);
-            generate_buildings(&mut tile_map);
+            println!("Player coords: {:?}", player_coords);
+            // for y in 0..tile_map.width as i32 {
+            //     for x in 0..tile_map.width as i32 {
+            //         tile_map.set_tile(x, y, Sea);
+            //     }
+            // }
+            // create_land_mass(&mut tile_map);
+            // generate_buildings(&mut tile_map);
         }
 
         if curr_screen_height != screen_height() as i32
