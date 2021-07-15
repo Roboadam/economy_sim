@@ -32,7 +32,7 @@ async fn main() {
 
     loop {
         if is_key_pressed(KeyCode::F) {
-            println!("FPS: {}", get_fps());
+            println!("FPS: {}, player_coords: {:?}", get_fps(), player_coords);
         }
         if is_key_down(KeyCode::W) {
             player_coords.1 -= SPEED * get_frame_time();
