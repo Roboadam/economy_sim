@@ -3,8 +3,6 @@ use crate::{building_generator::generate_buildings, tile_map::BuildingType};
 use macroquad::prelude::*;
 use rendering::*;
 use tile_map::{TileMap, TileType};
-// use TileType::Sea;
-
 mod building_generator;
 mod land_mass_generator;
 mod rendering;
@@ -51,16 +49,6 @@ async fn main() {
         }
         if is_key_down(KeyCode::D) {
             player_coords.0 += SPEED * get_frame_time();
-        }
-        if is_key_pressed(KeyCode::C) {
-            println!("Player coords: {:?}", player_coords);
-            // for y in 0..tile_map.width as i32 {
-            //     for x in 0..tile_map.width as i32 {
-            //         tile_map.set_tile(x, y, Sea);
-            //     }
-            // }
-            // create_land_mass(&mut tile_map);
-            // generate_buildings(&mut tile_map);
         }
 
         if curr_screen_height != screen_height() as i32
