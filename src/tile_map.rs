@@ -2,7 +2,13 @@
 pub enum TileType {
     Land,
     Sea,
-    Building(i32),
+    Building(BuildingType),
+}
+
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+pub enum BuildingType {
+    Business(i32),
+    Other,
 }
 
 pub struct TileMap {
