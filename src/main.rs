@@ -2,12 +2,14 @@ use crate::land_mass_generator::create_land_mass;
 use crate::{building_generator::generate_buildings, tile_map::BuildingType};
 use macroquad::prelude::*;
 use rendering::*;
-use tile_map::{TileMap, TileType};
+use tile_map::TileMap;
+use business::Business;
 mod building_generator;
 mod land_mass_generator;
 mod rendering;
 mod tile_map;
 mod tile_selector;
+mod business;
 
 #[macroquad::main("City Sim")]
 async fn main() {
@@ -27,6 +29,12 @@ async fn main() {
         .filter(|btype| match btype {
             BuildingType::Business(_) => true,
             _ => false,
+        })
+        .map(|building_type| {
+            match building_type {
+                BuildingType::Business(_) => todo!(),
+                BuildingType::Other => Business::default(),
+            }
         })
         .collect();
 
