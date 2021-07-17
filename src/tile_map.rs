@@ -8,7 +8,6 @@ pub enum TileType {
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum BuildingType {
     Business(i32),
-    Other,
 }
 
 pub struct TileMap {

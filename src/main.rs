@@ -1,15 +1,15 @@
 use crate::land_mass_generator::create_land_mass;
 use crate::{building_generator::generate_buildings, tile_map::BuildingType};
+use business::Business;
 use macroquad::prelude::*;
 use rendering::*;
 use tile_map::TileMap;
-use business::Business;
 mod building_generator;
+mod business;
 mod land_mass_generator;
 mod rendering;
 mod tile_map;
 mod tile_selector;
-mod business;
 
 #[macroquad::main("City Sim")]
 async fn main() {
@@ -24,17 +24,13 @@ async fn main() {
     let player_texture = open_pixel_texture("textures/player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
-    let businesses: Vec<_> = generate_buildings(&mut tile_map)
+    let _businesses: Vec<_> = generate_buildings(&mut tile_map)
         .iter()
         .filter(|btype| match btype {
             BuildingType::Business(_) => true,
-            _ => false,
         })
-        .map(|building_type| {
-            match building_type {
-                BuildingType::Business(_) => todo!(),
-                BuildingType::Other => Business::default(),
-            }
+        .map(|building_type| match building_type {
+            BuildingType::Business(building_id) => Business::new("name", *building_id),
         })
         .collect();
 
@@ -77,6 +73,7 @@ async fn main() {
             WHITE,
         );
         draw_texture_to_screen(&screen_data);
+        draw_text_ex("Some text here", 20.0, 20.0, TextParams::default());
 
         next_frame().await
     }
