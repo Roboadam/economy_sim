@@ -9,21 +9,21 @@ pub fn create_land_mass(tile_map: &mut TileMap) {
         for x in 0..tile_map.width {
             let is_land = rng.gen_bool(odds_of_land(x, y, tile_map.width));
             if is_land {
-                tile_map.set_tile(x as i32, y as i32, TileType::Land)
+                tile_map.set_tile(x as i32, y as i32, TileType::LandTile)
             }
         }
     }
     for y in 0..tile_map.width as i32 {
         for x in 0..tile_map.width as i32 {
-            if is_lonely_tile(x, y, &TileType::Sea, &tile_map) {
-                tile_map.set_tile(x, y, TileType::Land);
+            if is_lonely_tile(x, y, &TileType::SeaTile, &tile_map) {
+                tile_map.set_tile(x, y, TileType::LandTile);
             }
         }
     }
     for y in 0..tile_map.width as i32 {
         for x in 0..tile_map.width as i32 {
-            if is_lonely_tile(x, y, &TileType::Land, &tile_map) {
-                tile_map.set_tile(x, y, TileType::Sea);
+            if is_lonely_tile(x, y, &TileType::LandTile, &tile_map) {
+                tile_map.set_tile(x, y, TileType::SeaTile);
             }
         }
     }

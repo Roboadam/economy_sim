@@ -1,18 +1,22 @@
-use crate::tile_map::{BuildingType, TileMap, TileType};
+use crate::tile_map::{Building, BuildingType::Business, TileMap, TileType};
 
-pub fn generate_buildings(tile_map: &mut TileMap) -> Vec<BuildingType> {
+pub fn generate_buildings(tile_map: &mut TileMap) -> Vec<Building> {
     let mid = tile_map.width as i32 / 2;
-    tile_map.set_tile(mid, mid, TileType::Building(BuildingType::Business(1)));
-    tile_map.set_tile(mid + 1, mid, TileType::Building(BuildingType::Business(1)));
-    println!("b1: {},{} {},{}", mid, mid, mid+1, mid);
 
-    tile_map.set_tile(mid + 5, mid, TileType::Building(BuildingType::Business(2)));
-    tile_map.set_tile(
-        mid + 5,
-        mid + 1,
-        TileType::Building(BuildingType::Business(2)),
-    );
-    println!("b2: {},{} {},{}", mid+5, mid, mid+5, mid+1);
+    let building1 = Building {
+        id: 1,
+        building_type: Business,
+    };
+    let building2 = Building {
+        id: 2,
+        building_type: Business,
+    };
 
-    vec![BuildingType::Business(1), BuildingType::Business(2)]
+    tile_map.set_tile(mid, mid, TileType::BuildingTile(building1));
+    tile_map.set_tile(mid + 1, mid, TileType::BuildingTile(building1));
+
+    tile_map.set_tile(mid + 5, mid, TileType::BuildingTile(building2));
+    tile_map.set_tile(mid + 5, mid + 1, TileType::BuildingTile(building2));
+
+    vec![building1, building2]
 }

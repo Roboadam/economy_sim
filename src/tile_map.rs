@@ -1,18 +1,30 @@
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum TileType {
-    Land,
-    Sea,
-    Building(BuildingType),
+    LandTile,
+    SeaTile,
+    BuildingTile(Building),
+}
+
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+pub struct Building {
+    pub id: i32,
+    pub building_type: BuildingType,
 }
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum BuildingType {
-    Business(i32),
+    Business,
 }
 
 pub struct TileMap {
     tiles: Vec<TileType>,
+    buildings: Vec<BuildingLocations>,
     pub width: usize,
+}
+
+struct BuildingLocations {
+    coords: (i32, i32),
+    building_id: i32,
 }
 
 impl TileMap {
@@ -20,12 +32,13 @@ impl TileMap {
         let mut tiles = Vec::new();
         for _i in 0..tiles_per_side {
             for _j in 0..tiles_per_side {
-                tiles.push(TileType::Sea);
+                tiles.push(TileType::SeaTile);
             }
         }
 
         TileMap {
             tiles,
+            buildings: vec![],
             width: tiles_per_side,
         }
     }
@@ -34,6 +47,16 @@ impl TileMap {
         if let Some(index) = self.xy_as_index(x, y) {
             if let Some(elem) = self.tiles.get_mut(index) {
                 *elem = tile_type;
+                if let TileType::BuildingTile(Building {
+                    id: building_id,
+                    building_type: BuildingType::Business,
+                }) = tile_type
+                {
+                    self.buildings.push(BuildingLocations {
+                        coords: (x, y),
+                        building_id,
+                    });
+                }
             }
         }
     }

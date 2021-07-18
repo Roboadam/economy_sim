@@ -125,10 +125,12 @@ fn texture_params(
     tile_selector: &TileSelector,
 ) -> DrawTextureParams {
     const TILE_PIXEL_LEN: f32 = 16f32;
-    let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::Sea);
-    let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::Sea);
-    let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::Sea);
-    let se = tile_map.get_tile(x + 1, y + 1).unwrap_or(&TileType::Sea);
+    let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::SeaTile);
+    let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::SeaTile);
+    let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::SeaTile);
+    let se = tile_map
+        .get_tile(x + 1, y + 1)
+        .unwrap_or(&TileType::SeaTile);
 
     let (x_coord, y_coord) = tile_selector.select_tile(*nw, *ne, *sw, *se);
 
