@@ -61,6 +61,16 @@ impl TileMap {
         }
     }
 
+    pub fn close_building(&self, location: (f32, f32)) -> Option<i32> {
+        const MAX_DIST: i32 = 2;
+        const SQUARED_MAX_DIST: i32 = MAX_DIST * MAX_DIST;
+        let mut result = None;
+        for building_location in self.buildings {
+            let start = building_location.coords;
+            let dist_sq = dist_squared(start, location);
+        }
+    }
+
     pub fn get_tile(&self, x: i32, y: i32) -> Option<&TileType> {
         if let Some(index) = self.xy_as_index(x, y) {
             self.tiles.get(index)
@@ -77,4 +87,10 @@ impl TileMap {
             Some(index as usize)
         }
     }
+}
+
+fn dist_squared(start: (i32, i32), end: (f32, f32)) -> f32 {
+    let start = (start.0 as f32, start.1 as f32);
+    let diff = (start.0 - end.0, start.1 - end.1);
+    diff.0 * diff.0 + diff.1 + diff.1
 }

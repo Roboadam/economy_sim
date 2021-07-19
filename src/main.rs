@@ -1,6 +1,7 @@
+use crate::business::Business;
 use crate::land_mass_generator::create_land_mass;
-use crate::{building_generator::generate_buildings, tile_map::Building};
-use business::Business;
+use crate::tile_map::Building;
+use crate::{building_generator::generate_buildings};
 use macroquad::prelude::*;
 use rendering::*;
 use tile_map::TileMap;
@@ -24,7 +25,22 @@ async fn main() {
     let player_texture = open_pixel_texture("textures/player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
-    let _buildings = generate_buildings(&mut tile_map);
+    let buildings = generate_buildings(&mut tile_map);
+    let businesses: Vec<Business> = buildings.iter().filter(|building| {
+        match building {
+            Building { id: _, building_type: tile_map::BuildingType::Business } => true,
+            _ => false,
+        }
+    }).map(|building| {
+        let building_id = building.id;
+        Business {
+            cash: 0.,
+            num_widgets: 0,
+            price: 0.,
+            building_id,
+            name: format!("Building #{}", building_id),
+        }
+    }).collect();
     let mut player_coords: (f32, f32) = (10., 10.);
     let mut curr_screen_width = screen_width() as i32;
     let mut curr_screen_height = screen_height() as i32;
