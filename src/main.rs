@@ -29,7 +29,6 @@ async fn main() {
     let businesses: Vec<Business> = buildings.iter().filter(|building| {
         match building {
             Building { id: _, building_type: tile_map::BuildingType::Business } => true,
-            _ => false,
         }
     }).map(|building| {
         let building_id = building.id;
