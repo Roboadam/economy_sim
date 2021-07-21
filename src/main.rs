@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
+use crate::building_generator::generate_buildings;
 use crate::business::Business;
 use crate::land_mass_generator::create_land_mass;
 use crate::tile_map::Building;
-use crate::{building_generator::generate_buildings};
 use macroquad::prelude::*;
 use rendering::*;
 use tile_map::TileMap;
@@ -26,39 +28,67 @@ async fn main() {
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
     let buildings = generate_buildings(&mut tile_map);
-    let businesses: Vec<Business> = buildings.iter().filter(|building| {
-        match building {
-            Building { id: _, building_type: tile_map::BuildingType::Business } => true,
-        }
-    }).map(|building| {
-        let building_id = building.id;
-        Business {
-            cash: 0.,
-            num_widgets: 0,
-            price: 0.,
-            building_id,
-            name: format!("Building #{}", building_id),
-        }
-    }).collect();
+    let businesses_by_id: HashMap<i32, Business> = buildings
+        .iter()
+        .filter(|building| match building {
+            Building {
+                id: _,
+                building_type: tile_map::BuildingType::Business,
+            } => true,
+        })
+        .map(|building| {
+            let building_id = building.id;
+            let business = Business {
+                cash: 0.,
+                num_widgets: 0,
+                price: 0.,
+                building_id,
+                name: format!("Building #{}", building_id),
+            };
+            (building_id, business)
+        })
+        .collect();
     let mut player_coords: (f32, f32) = (10., 10.);
     let mut curr_screen_width = screen_width() as i32;
     let mut curr_screen_height = screen_height() as i32;
+    let mut status_text = None;
 
     loop {
         if is_key_pressed(KeyCode::F) {
             println!("FPS: {}, player_coords: {:?}", get_fps(), player_coords);
         }
+        let mut moved = false;
         if is_key_down(KeyCode::W) {
             player_coords.1 -= SPEED * get_frame_time();
+            moved = true;
         }
         if is_key_down(KeyCode::S) {
             player_coords.1 += SPEED * get_frame_time();
+            moved = true;
         }
         if is_key_down(KeyCode::A) {
             player_coords.0 -= SPEED * get_frame_time();
+            moved = true;
         }
         if is_key_down(KeyCode::D) {
             player_coords.0 += SPEED * get_frame_time();
+            moved = true;
+        }
+
+        if moved {
+            if let Some(building_id) = tile_map.close_building(player_coords) {
+                if let Some(business) = businesses_by_id.get(&building_id) {
+                    // TODO - setting this every frame is time consuming
+                    status_text = Some(format!(
+                        "{} - widgets:{}",
+                        business.name, business.num_widgets
+                    ));
+                } else {
+                    status_text = None;
+                }
+            } else {
+                status_text = None;
+            }
         }
 
         if curr_screen_height != screen_height() as i32
@@ -79,7 +109,9 @@ async fn main() {
             WHITE,
         );
         draw_texture_to_screen(&screen_data);
-        draw_text_ex("Some text here", 20.0, 20.0, TextParams::default());
+        if let Some(ref text) = status_text {
+            draw_text_ex(text, 20.0, 20.0, TextParams::default());
+        }
 
         next_frame().await
     }

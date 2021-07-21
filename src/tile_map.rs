@@ -100,5 +100,5 @@ impl TileMap {
 fn dist_squared(start: (i32, i32), end: (f32, f32)) -> f32 {
     let start = (start.0 as f32, start.1 as f32);
     let diff = (start.0 - end.0, start.1 - end.1);
-    diff.0 * diff.0 + diff.1 + diff.1
+    diff.0 * diff.0 + diff.1 * diff.1
 }
