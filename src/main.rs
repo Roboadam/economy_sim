@@ -44,7 +44,6 @@ async fn main() {
                 cash: 0.,
                 num_widgets: 0,
                 price: 0.,
-                building_id,
                 name: format!("Building #{}", building_id),
             };
             (building_id, business)
