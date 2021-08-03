@@ -1,0 +1,16 @@
+{
+    2: (
+        cash: 0,
+        num_widgets: 0,
+        price: 0,
+        building_id: 2,
+        name: "Building #2",
+    ),
+    1: (
+        cash: 0,
+        num_widgets: 0,
+        price: 0,
+        building_id: 1,
+        name: "Building #1",
+    ),
+}

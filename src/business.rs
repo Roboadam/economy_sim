@@ -1,3 +1,6 @@
+use serde::Serialize;
+
+#[derive(Serialize)]
 pub struct Business {
     pub cash: f32,
     pub num_widgets: i32,

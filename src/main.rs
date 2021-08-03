@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fs::File};
 
 use crate::building_generator::generate_buildings;
 use crate::business::Business;
@@ -6,7 +6,9 @@ use crate::land_mass_generator::create_land_mass;
 use crate::tile_map::Building;
 use macroquad::prelude::*;
 use rendering::*;
+use ron::ser::{to_writer_pretty, PrettyConfig};
 use tile_map::TileMap;
+
 mod building_generator;
 mod business;
 mod land_mass_generator;
@@ -48,6 +50,10 @@ async fn main() {
             (building_id, business)
         })
         .collect();
+
+    let buffer = File::create("foo.txt").unwrap();
+    let _result = to_writer_pretty(buffer, &businesses_by_id, PrettyConfig::new()).unwrap();
+
     let mut player_coords: (f32, f32) = (10., 10.);
     let mut curr_screen_width = screen_width() as i32;
     let mut curr_screen_height = screen_height() as i32;
