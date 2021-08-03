@@ -3,10 +3,12 @@ use std::{collections::HashMap, fs::File};
 use crate::building_generator::generate_buildings;
 use crate::business::Business;
 use crate::land_mass_generator::create_land_mass;
-use crate::tile_map::Building;
 use macroquad::prelude::*;
 use rendering::*;
-use ron::ser::{to_writer_pretty, PrettyConfig};
+use ron::{
+    de::from_reader,
+    ser::{to_writer_pretty, PrettyConfig},
+};
 use tile_map::TileMap;
 
 mod building_generator;
@@ -29,27 +31,10 @@ async fn main() {
     let player_texture = open_pixel_texture("textures/player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
-    let buildings = generate_buildings(&mut tile_map);
-    let businesses_by_id: HashMap<i32, Business> = buildings
-        .iter()
-        .filter(|building| match building {
-            Building {
-                id: _,
-                building_type: tile_map::BuildingType::Business,
-            } => true,
-        })
-        .map(|building| {
-            let building_id = building.id;
-            let business = Business {
-                cash: 0.,
-                num_widgets: 0,
-                price: 0.,
-                name: format!("Building #{}", building_id),
-            };
-            (building_id, business)
-        })
-        .collect();
+    generate_buildings(&mut tile_map);
 
+    let buffer = File::open("foo.txt").unwrap();
+    let businesses_by_id: HashMap<i32, Business> = from_reader(buffer).unwrap();
     let buffer = File::create("foo.txt").unwrap();
     let _result = to_writer_pretty(buffer, &businesses_by_id, PrettyConfig::new()).unwrap();
 
