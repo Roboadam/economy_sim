@@ -5,8 +5,9 @@ authors = ["Adam H <Roboadam@users.noreply.github.com>"]
 edition = "2018"
 
 [dependencies]
-macroquad = "0.3.6"
+macroquad = "0.3.7"
 rand = "0.8.4"
+ron = "0s.6.4"
 
 [[bin]]
 name = "economy_sim"
