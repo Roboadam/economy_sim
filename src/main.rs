@@ -8,6 +8,7 @@ use rendering::*;
 use ron::de::from_reader;
 use tile_map::TileMap;
 
+mod ai_person;
 mod building_generator;
 mod business;
 mod land_mass_generator;
