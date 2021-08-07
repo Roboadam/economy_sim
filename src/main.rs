@@ -5,10 +5,7 @@ use crate::business::Business;
 use crate::land_mass_generator::create_land_mass;
 use macroquad::prelude::*;
 use rendering::*;
-use ron::{
-    de::from_reader,
-    ser::{to_writer_pretty, PrettyConfig},
-};
+use ron::de::from_reader;
 use tile_map::TileMap;
 
 mod building_generator;
@@ -37,8 +34,6 @@ async fn main() {
 
     let buffer = File::open("foo.txt").unwrap();
     let mut businesses_by_id: HashMap<i32, Business> = from_reader(buffer).unwrap();
-    let buffer = File::create("foo.txt").unwrap();
-    let _result = to_writer_pretty(buffer, &businesses_by_id, PrettyConfig::new()).unwrap();
 
     let mut player_coords: (f32, f32) = (10., 10.);
     let mut curr_screen_width = screen_width() as i32;
