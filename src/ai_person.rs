@@ -3,6 +3,7 @@ use crate::business::Business;
 pub struct AiPerson {
     pub cash: f32,
     pub hunger: f32,
+    pub expected_price: f32,
     pub food_from_meal: f32,
 }
 
@@ -13,17 +14,26 @@ impl AiPerson {
             return false;
         }
 
-        let buy_it_price = self.cash / 2000.;
-        if business.price < buy_it_price {
+        if business.price < self.expected_price {
             return true;
         }
 
-        let max_price = self.cash / 21.;
-        
-        if self.hunger < 0.2  && business.price < max_price {
+        if self.hunger < 0.2 {
             return true;
         }
 
         false
+    }
+
+    pub fn buy(&mut self, business: &mut Business) {
+        if self.will_buy(business) {
+            self.cash -= business.price;
+            business.cash += business.price;
+            self.hunger += 1. / 3.;
+            business.num_widgets -= 1;
+            let price_diff = business.price - self.expected_price;
+            self.expected_price += price_diff / 3.;
+            business.price += business.price / 100.;
+        }
     }
 }
