@@ -27,13 +27,11 @@ impl AiPerson {
 
     pub fn buy(&mut self, business: &mut Business) {
         if self.will_buy(business) {
+            business.buy_widget();
             self.cash -= business.price;
-            business.cash += business.price;
             self.hunger += 1. / 3.;
-            business.num_widgets -= 1;
             let price_diff = business.price - self.expected_price;
             self.expected_price += price_diff / 3.;
-            business.price += business.price / 100.;
         }
     }
 }

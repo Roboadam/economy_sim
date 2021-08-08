@@ -23,8 +23,10 @@ impl Business {
         }
         self.num_widgets -= 1;
         self.cash += self.price;
+        let orig_price = self.price;
+        self.price += self.price / 100.;
         Purchase {
-            cash: self.price,
+            cash: orig_price,
             num_items: 1,
         }
     }
