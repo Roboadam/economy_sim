@@ -15,6 +15,7 @@ mod land_mass_generator;
 mod rendering;
 mod tile_map;
 mod tile_selector;
+mod money;
 
 #[macroquad::main("City Sim")]
 async fn main() {
