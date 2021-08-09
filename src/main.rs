@@ -1,21 +1,23 @@
-use std::{collections::HashMap, fs::File};
+use std::fs::File;
 
 use crate::building_generator::generate_buildings;
-use crate::business::Business;
+use crate::business::Businesses;
 use crate::land_mass_generator::create_land_mass;
+use crate::money::Money;
+use crate::person::{People, Person};
 use macroquad::prelude::*;
 use rendering::*;
 use ron::de::from_reader;
 use tile_map::TileMap;
 
-mod ai_person;
 mod building_generator;
 mod business;
 mod land_mass_generator;
+mod money;
+mod person;
 mod rendering;
 mod tile_map;
 mod tile_selector;
-mod money;
 
 #[macroquad::main("City Sim")]
 async fn main() {
@@ -24,8 +26,6 @@ async fn main() {
     const TILE_WIDTH: f32 = 16.;
     const TILES_ON_SCREEN: i32 = 10;
 
-    let mut my_cash = 100.0;
-    let mut my_widgets = 0;
     let mut screen_data =
         ScreenData::new(TILES_ON_SCREEN, TILE_WIDTH, screen_width(), screen_height());
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
@@ -35,7 +35,11 @@ async fn main() {
     generate_buildings(&mut tile_map);
 
     let buffer = File::open("foo.txt").unwrap();
-    let mut businesses_by_id: HashMap<i32, Business> = from_reader(buffer).unwrap();
+    let mut businesses = Businesses::new(from_reader(buffer).unwrap());
+    let mut people = People::new();
+    people.add(0, Person { hunger: 100. });
+    let mut money = Money::new();
+    money.create_cash(0, 100.3);
 
     let mut player_coords: (f32, f32) = (10., 10.);
     let mut curr_screen_width = screen_width() as i32;
@@ -66,30 +70,29 @@ async fn main() {
         }
         if is_key_pressed(KeyCode::B) {
             if let Some(business_id) = close_business {
-                if let Some(business) = businesses_by_id.get_mut(&business_id) {
-                    if my_cash > business.price {
-                        let purchase = business.buy_widget();
-                        my_cash -= purchase.cash;
-                        my_widgets += purchase.num_items;
-                        moved = true;
-                    }
-                }
+                // let business = businesses.get(business_id);
+                business::widget_transaction(
+                    business_id,
+                    0,
+                    &mut businesses,
+                    &mut people,
+                    &mut money,
+                );
+                moved = true;
             }
         }
 
         if moved {
             if let Some(building_id) = tile_map.close_building(player_coords) {
-                if let Some(business) = businesses_by_id.get(&building_id) {
-                    // TODO - setting this every frame is time consuming
-                    close_business = Some(building_id);
-                    status_text = Some(format!(
-                        "{} - widgets:{}\nmycash: {}, my_widgets: {}",
-                        business.name, business.num_widgets, my_cash, my_widgets
-                    ));
-                } else {
-                    close_business = None;
-                    status_text = None;
-                }
+                let business = businesses.get(building_id);
+                // TODO - setting this every frame is time consuming
+                close_business = Some(building_id);
+                let my_cash = money.funds(0);
+                let my_hunger = people.get(0).hunger;
+                status_text = Some(format!(
+                    "{} - widgets:{}\nmycash: {}, my_hunger: {}",
+                    business.name, business.num_widgets, my_cash, my_hunger
+                ));
             } else {
                 close_business = None;
                 status_text = None;

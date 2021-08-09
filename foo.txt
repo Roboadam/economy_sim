@@ -1,12 +1,10 @@
 {
     1: (
-        cash: 200,
         num_widgets: 2,
         price: 3.3,
         name: "Cheap widgets",
     ),
     2: (
-        cash: 100.4,
         num_widgets: 7,
         price: 4.1,
         name: "Expensive widgets",
