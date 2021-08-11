@@ -1,14 +1,17 @@
-use crate::tile_map::{Building, BuildingType::Business, TileMap, TileType};
+use crate::{
+    business::BusinessId,
+    tile_map::{Building, BuildingType::Business, TileMap, TileType},
+};
 
 pub fn generate_buildings(tile_map: &mut TileMap) -> Vec<Building> {
     let mid = tile_map.width as i32 / 2;
 
     let building1 = Building {
-        id: 1,
+        id: BusinessId(1),
         building_type: Business,
     };
     let building2 = Building {
-        id: 2,
+        id: BusinessId(2),
         building_type: Business,
     };
 

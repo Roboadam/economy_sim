@@ -1,3 +1,5 @@
+use crate::business::BusinessId;
+
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum TileType {
     LandTile,
@@ -7,7 +9,7 @@ pub enum TileType {
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub struct Building {
-    pub id: i32,
+    pub id: BusinessId,
     pub building_type: BuildingType,
 }
 
@@ -24,7 +26,7 @@ pub struct TileMap {
 
 struct BuildingLocations {
     coords: (i32, i32),
-    building_id: i32,
+    building_id: BusinessId,
 }
 
 impl TileMap {
@@ -61,7 +63,7 @@ impl TileMap {
         }
     }
 
-    pub fn close_building(&self, location: (f32, f32)) -> Option<i32> {
+    pub fn close_building(&self, location: (f32, f32)) -> Option<BusinessId> {
         const MAX_DIST: f32 = 2.;
         const SQUARED_MAX_DIST: f32 = MAX_DIST * MAX_DIST;
         let mut closest_dist = SQUARED_MAX_DIST + 1.;

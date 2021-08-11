@@ -14,28 +14,31 @@ pub struct Business {
     pub name: String,
 }
 
-pub struct Businesses(HashMap<i32, Business>);
+#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone, Copy)]
+pub struct BusinessId(pub i32);
+
+pub struct Businesses(HashMap<BusinessId, Business>);
 
 impl Businesses {
-    pub fn get(&self, id: i32) -> &Business {
+    pub fn get(&self, id: BusinessId) -> &Business {
         self.0
             .get(&id)
-            .expect(&format!("Unknown business id {}", id))
+            .expect(&format!("Unknown business id {:?}", id))
     }
 
-    pub fn get_mut(&mut self, id: i32) -> &mut Business {
+    pub fn get_mut(&mut self, id: BusinessId) -> &mut Business {
         self.0
             .get_mut(&id)
-            .expect(&format!("Unknown business id {}", id))
+            .expect(&format!("Unknown business id {:?}", id))
     }
 
-    pub fn new(data: HashMap<i32, Business>) -> Self {
+    pub fn new(data: HashMap<BusinessId, Business>) -> Self {
         Self(data)
     }
 }
 
 pub fn widget_transaction(
-    business_id: i32,
+    business_id: BusinessId,
     person_id: i32,
     businesses: &mut Businesses,
     people: &mut People,
@@ -59,7 +62,6 @@ pub fn widget_transaction(
 impl Business {
     pub fn sell_widget(&mut self) {
         self.num_widgets -= 1;
-        let orig_price = self.price;
         self.price += self.price / 100.;
     }
 }

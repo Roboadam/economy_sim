@@ -1,10 +1,10 @@
 {
-    1: (
+    BusinessId(1): (
         num_widgets: 2,
         price: 3.3,
         name: "Cheap widgets",
     ),
-    2: (
+    BusinessId(2): (
         num_widgets: 7,
         price: 4.1,
         name: "Expensive widgets",

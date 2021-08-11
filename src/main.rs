@@ -1,7 +1,7 @@
 use std::fs::File;
 
 use crate::building_generator::generate_buildings;
-use crate::business::Businesses;
+use crate::business::{BusinessId, Businesses};
 use crate::land_mass_generator::create_land_mass;
 use crate::money::Money;
 use crate::person::{People, Person};
@@ -45,7 +45,7 @@ async fn main() {
     let mut curr_screen_width = screen_width() as i32;
     let mut curr_screen_height = screen_height() as i32;
     let mut status_text = None;
-    let mut close_business: Option<i32> = None;
+    let mut close_business: Option<BusinessId> = None;
 
     loop {
         if is_key_pressed(KeyCode::F) {
