@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     money::{Money, TransferError::InsufficientFunds},
-    person::People,
+    person::{People, PersonId},
 };
 
 #[derive(Serialize, Deserialize)]
@@ -39,7 +39,7 @@ impl Businesses {
 
 pub fn widget_transaction(
     business_id: BusinessId,
-    person_id: i32,
+    person_id: PersonId,
     businesses: &mut Businesses,
     people: &mut People,
     money: &mut Money,
@@ -50,7 +50,7 @@ pub fn widget_transaction(
         println!("Not enough widgets to sell");
         return;
     }
-    match money.transfer(business_id, person_id, business.price) {
+    match money.transfer(person_id, business_id, business.price) {
         Ok(_) => {
             business.sell_widget();
             person.buy();

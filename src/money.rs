@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::business::BusinessId;
+use crate::{business::BusinessId, person::PersonId};
 
 pub struct Money(HashMap<i32, f32>);
 
@@ -13,16 +13,21 @@ impl Money {
         Self(HashMap::new())
     }
 
-    pub fn transfer(&mut self, from: BusinessId, to: i32, cash: f32) -> Result<(), TransferError> {
+    pub fn transfer(
+        &mut self,
+        from: PersonId,
+        to: BusinessId,
+        cash: f32,
+    ) -> Result<(), TransferError> {
         let from_funds = self.funds(from.0);
         if from_funds >= cash {
             return Err(TransferError::InsufficientFunds);
         }
 
-        let to_funds = self.funds(to);
+        let to_funds = self.funds(to.0);
 
         self.0.insert(from.0, from_funds - cash);
-        self.0.insert(to, to_funds + cash);
+        self.0.insert(to.0, to_funds + cash);
 
         Ok(())
     }

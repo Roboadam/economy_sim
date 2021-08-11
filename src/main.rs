@@ -4,7 +4,7 @@ use crate::building_generator::generate_buildings;
 use crate::business::{BusinessId, Businesses};
 use crate::land_mass_generator::create_land_mass;
 use crate::money::Money;
-use crate::person::{People, Person};
+use crate::person::{People, Person, PersonId};
 use macroquad::prelude::*;
 use rendering::*;
 use ron::de::from_reader;
@@ -26,6 +26,7 @@ async fn main() {
     const TILE_WIDTH: f32 = 16.;
     const TILES_ON_SCREEN: i32 = 10;
 
+    let my_id = PersonId(0);
     let mut screen_data =
         ScreenData::new(TILES_ON_SCREEN, TILE_WIDTH, screen_width(), screen_height());
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
@@ -37,7 +38,7 @@ async fn main() {
     let buffer = File::open("foo.txt").unwrap();
     let mut businesses = Businesses::new(from_reader(buffer).unwrap());
     let mut people = People::new();
-    people.add(0, Person { hunger: 100. });
+    people.add(my_id, Person { hunger: 100. });
     let mut money = Money::new();
     money.create_cash(0, 100.3);
 
@@ -73,7 +74,7 @@ async fn main() {
                 // let business = businesses.get(business_id);
                 business::widget_transaction(
                     business_id,
-                    0,
+                    my_id,
                     &mut businesses,
                     &mut people,
                     &mut money,
@@ -87,8 +88,8 @@ async fn main() {
                 let business = businesses.get(building_id);
                 // TODO - setting this every frame is time consuming
                 close_business = Some(building_id);
-                let my_cash = money.funds(0);
-                let my_hunger = people.get(0).hunger;
+                let my_cash = money.funds(my_id.0);
+                let my_hunger = people.get(my_id).hunger;
                 status_text = Some(format!(
                     "{} - widgets:{}\nmycash: {}, my_hunger: {}",
                     business.name, business.num_widgets, my_cash, my_hunger
