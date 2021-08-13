@@ -10,6 +10,12 @@ pub struct PersonId(pub i32);
 
 pub struct People(HashMap<PersonId, Person>);
 
+impl Person {
+    pub fn update(&mut self, seconds: f32) {
+        self.hunger -= seconds / 10.;
+    }
+}
+
 impl People {
     pub fn get(&self, id: PersonId) -> &Person {
         self.0
@@ -29,6 +35,12 @@ impl People {
 
     pub fn add(&mut self, id: PersonId, person: Person) {
         self.0.insert(id, person);
+    }
+
+    pub fn update(&mut self, seconds: f32) {
+        self.0
+            .iter_mut()
+            .for_each(|(_, person)| person.update(seconds));
     }
 }
 

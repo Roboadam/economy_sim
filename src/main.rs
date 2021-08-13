@@ -122,6 +122,7 @@ async fn main() {
             draw_text_ex(text, 20.0, 20.0, TextParams::default());
         }
 
+        people.update(get_frame_time());
         next_frame().await
     }
 }
