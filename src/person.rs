@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 pub struct Person {
     pub hunger: f32,
+    pub position: (f32, f32),
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone, Copy)]
