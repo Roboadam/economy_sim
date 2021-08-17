@@ -2,9 +2,11 @@ use std::fs::File;
 
 use crate::building_generator::generate_buildings;
 use crate::business::{BusinessId, Businesses};
+use crate::components::{Hunger, Name, Position};
 use crate::land_mass_generator::create_land_mass;
 use crate::money::Money;
 use crate::person::{People, Person, PersonId};
+use hecs::World;
 use macroquad::prelude::*;
 use rendering::*;
 use ron::de::from_reader;
@@ -12,6 +14,7 @@ use tile_map::TileMap;
 
 mod building_generator;
 mod business;
+mod components;
 mod land_mass_generator;
 mod money;
 mod person;
@@ -21,12 +24,12 @@ mod tile_selector;
 
 #[macroquad::main("City Sim")]
 async fn main() {
+    let mut world = World::new();
     const MAP_WIDTH_IN_TILES: usize = 50;
     const SPEED: f32 = 5.;
     const TILE_WIDTH: f32 = 16.;
     const TILES_ON_SCREEN: i32 = 10;
 
-    let my_id = PersonId(0);
     let mut screen_data =
         ScreenData::new(TILES_ON_SCREEN, TILE_WIDTH, screen_width(), screen_height());
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
@@ -37,14 +40,7 @@ async fn main() {
 
     let buffer = File::open("foo.txt").unwrap();
     let mut businesses = Businesses::new(from_reader(buffer).unwrap());
-    let mut people = People::new();
-    people.add(
-        my_id,
-        Person {
-            hunger: 100.,
-            position: (10., 10.),
-        },
-    );
+    let my_id = world.spawn((Name("Adam".to_owned()), Hunger(100.), Position(10., 10.)));
     let mut money = Money::new();
     money.create_cash(0, 100.3);
 
