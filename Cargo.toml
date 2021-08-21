@@ -9,7 +9,6 @@ macroquad = "0.3.7"
 rand = "0.8.4"
 ron = "0.6.4"
 serde = "1.0.127"
-hecs = "0.6.0"
 
 [[bin]]
 name = "economy_sim"
