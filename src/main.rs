@@ -10,12 +10,15 @@ use rendering::*;
 use ron::de::from_reader;
 use tile_map::TileMap;
 
+mod ai_travel_point;
 mod building_generator;
 mod business;
+mod components;
 mod land_mass_generator;
 mod money;
 mod person;
 mod rendering;
+mod sprites;
 mod tile_map;
 mod tile_selector;
 
