@@ -2,7 +2,7 @@ use macroquad::prelude::Texture2D;
 
 use crate::rendering::open_pixel_texture;
 
-pub struct Sprite(Texture2D);
+pub struct Sprite(pub Texture2D);
 
 pub struct SpritePool(Vec<Sprite>);
 
