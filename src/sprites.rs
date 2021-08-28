@@ -7,6 +7,10 @@ pub struct Sprite(pub Texture2D);
 pub struct SpritePool(Vec<Sprite>);
 
 impl SpritePool {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
     pub async fn add(&mut self, file_path: &str) -> i32 {
         let texture = open_pixel_texture(file_path).await;
         self.0.push(Sprite(texture));
@@ -14,6 +18,10 @@ impl SpritePool {
     }
 
     pub fn get(&self, index: i32) -> Option<&Sprite> {
-        self.get(index)
+        if index < 0 {
+            return None;
+        }
+
+        self.0.get(index as usize)
     }
 }

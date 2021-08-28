@@ -34,10 +34,15 @@ pub fn sample_travel_points(sprite: i32) -> Vec<AiTravelPoint> {
     ]
 }
 
-pub fn draw_travel_points(points: &Vec<AiTravelPoint>, sprites: &SpritePool) {
+pub fn draw_travel_points(points: &Vec<AiTravelPoint>, sprites: &SpritePool, tile_width: f32) {
     points.iter().for_each(|aitp| {
         if let Some(texture) = sprites.get(aitp.sprite) {
-            draw_texture(texture.0, aitp.position.0, aitp.position.1, WHITE);
+            draw_texture(
+                texture.0,
+                aitp.position.0 * tile_width,
+                aitp.position.1 * tile_width,
+                WHITE,
+            );
         }
     });
 }

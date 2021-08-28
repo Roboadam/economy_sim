@@ -1,10 +1,12 @@
 use std::fs::File;
 
+use crate::ai_travel_point::{draw_travel_points, sample_travel_points};
 use crate::building_generator::generate_buildings;
 use crate::business::{BusinessId, Businesses};
 use crate::land_mass_generator::create_land_mass;
 use crate::money::Money;
 use crate::person::{People, Person, PersonId};
+use crate::sprites::SpritePool;
 use macroquad::prelude::*;
 use rendering::*;
 use ron::de::from_reader;
@@ -55,6 +57,9 @@ async fn main() {
     let mut curr_screen_height = screen_height() as i32;
     let mut status_text = None;
     let mut close_business: Option<BusinessId> = None;
+    let mut sprite_pool = SpritePool::new();
+    let travel_point_sprite = sprite_pool.add("textures/ai_travel_point.png").await;
+    let travel_points = sample_travel_points(travel_point_sprite);
 
     loop {
         if is_key_pressed(KeyCode::F) {
@@ -129,6 +134,7 @@ async fn main() {
             people.get(my_id).position,
             &screen_data,
         );
+        draw_travel_points(&travel_points, &sprite_pool, TILE_WIDTH);
         draw_texture(
             player_texture,
             my_position.0 * TILE_WIDTH,
