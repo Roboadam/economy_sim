@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::components::Position;
+
 pub struct Person {
     pub hunger: f32,
-    pub position: (f32, f32),
+    pub position: Position,
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone, Copy)]

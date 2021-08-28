@@ -1,4 +1,4 @@
-use crate::business::BusinessId;
+use crate::{business::BusinessId, components::Position};
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub enum TileType {
@@ -63,7 +63,7 @@ impl TileMap {
         }
     }
 
-    pub fn close_building(&self, location: (f32, f32)) -> Option<BusinessId> {
+    pub fn close_building(&self, location: Position) -> Option<BusinessId> {
         const MAX_DIST: f32 = 2.;
         const SQUARED_MAX_DIST: f32 = MAX_DIST * MAX_DIST;
         let mut closest_dist = SQUARED_MAX_DIST + 1.;
@@ -99,7 +99,7 @@ impl TileMap {
     }
 }
 
-fn dist_squared(start: (i32, i32), end: (f32, f32)) -> f32 {
+fn dist_squared(start: (i32, i32), end: Position) -> f32 {
     let start = (start.0 as f32, start.1 as f32);
     let diff = (start.0 - end.0, start.1 - end.1);
     diff.0 * diff.0 + diff.1 * diff.1

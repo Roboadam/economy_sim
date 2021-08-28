@@ -3,6 +3,7 @@ use std::fs::File;
 use crate::ai_travel_point::{draw_travel_points, sample_travel_points};
 use crate::building_generator::generate_buildings;
 use crate::business::{BusinessId, Businesses};
+use crate::components::Position;
 use crate::land_mass_generator::create_land_mass;
 use crate::money::Money;
 use crate::person::{People, Person, PersonId};
@@ -47,7 +48,7 @@ async fn main() {
         my_id,
         Person {
             hunger: 100.,
-            position: (10., 10.),
+            position: Position(10., 10.),
         },
     );
     let mut money = Money::new();

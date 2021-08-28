@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::{
+    components::Position,
     tile_map::{TileMap, TileType},
     tile_selector::TileSelector,
 };
@@ -71,14 +72,14 @@ fn screen_dimension_in_tiles(
     }
 }
 
-pub fn player_coords_to_target(coords: (f32, f32), tile_width: f32) -> Vec2 {
+pub fn player_coords_to_target(coords: Position, tile_width: f32) -> Vec2 {
     vec2(coords.0 * tile_width, coords.1 * tile_width)
 }
 
 pub fn draw_tile_map(
     tile_map: &TileMap,
     texture_atlas: &Texture2D,
-    player_coords: (f32, f32),
+    player_coords: Position,
     screen_data: &ScreenData,
 ) {
     let screen_dimensions = screen_data.screen_dimensions();
@@ -102,7 +103,7 @@ pub fn draw_tile_map(
     }
 }
 
-pub fn draw_to_texture(player_coords: (f32, f32), screen_data: &ScreenData) {
+pub fn draw_to_texture(player_coords: Position, screen_data: &ScreenData) {
     let screen_dimensions = screen_data.screen_dimensions();
     let render_target = screen_data.render_target();
     let tile_width = screen_data.tile_width();
