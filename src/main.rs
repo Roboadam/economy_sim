@@ -6,7 +6,7 @@ use crate::business::{BusinessId, Businesses};
 use crate::components::Position;
 use crate::land_mass_generator::create_land_mass;
 use crate::money::Money;
-use crate::person::{People, Person, PersonId};
+use crate::person::{AiPerson, People, Person, PersonId};
 use crate::sprites::SpritePool;
 use macroquad::prelude::*;
 use rendering::*;
@@ -37,6 +37,7 @@ async fn main() {
         ScreenData::new(TILES_ON_SCREEN, TILE_WIDTH, screen_width(), screen_height());
     let texture_atlas = open_pixel_texture("textures/land_tilemap.png").await;
     let player_texture = open_pixel_texture("textures/player.png").await;
+    let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
     let mut tile_map = TileMap::new(MAP_WIDTH_IN_TILES);
     create_land_mass(&mut tile_map);
     generate_buildings(&mut tile_map);
@@ -53,6 +54,14 @@ async fn main() {
     );
     let mut money = Money::new();
     money.create_cash(0, 100.3);
+
+    let mut ai_person = AiPerson {
+        person: Person {
+            hunger: 100.,
+            position: Position(20., 20.),
+        },
+        travel_to: None,
+    };
 
     let mut curr_screen_width = screen_width() as i32;
     let mut curr_screen_height = screen_height() as i32;
@@ -142,12 +151,19 @@ async fn main() {
             my_position.1 * TILE_WIDTH,
             WHITE,
         );
+        draw_texture(
+            ai_player_texture,
+            ai_person.person.position.0 * TILE_WIDTH,
+            ai_person.person.position.1 * TILE_WIDTH,
+            WHITE,
+        );
         draw_texture_to_screen(&screen_data);
         if let Some(ref text) = status_text {
             draw_text_ex(text, 20.0, 20.0, TextParams::default());
         }
 
         people.update(get_frame_time());
+        ai_person.update(get_frame_time(), &travel_points);
         next_frame().await
     }
 }
