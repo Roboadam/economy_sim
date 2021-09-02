@@ -33,8 +33,8 @@ impl AiPerson {
                 let dx = aitp.position.0 - self.person.position.0;
                 let dy = aitp.position.1 - self.person.position.1;
                 let len = (dx * dx + dy * dy).sqrt();
-                self.person.position.0 += dx / (len * 70.);
-                self.person.position.1 += dy / (len * 70.);
+                self.person.position.0 += dx * seconds / len;
+                self.person.position.1 += dy * seconds / len;
                 if len < 0.1 {
                     self.travel_to = None;
                 }

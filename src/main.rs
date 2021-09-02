@@ -49,7 +49,7 @@ async fn main() {
         my_id,
         Person {
             hunger: 100.,
-            position: Position(10., 10.),
+            position: Position(20., 20.),
         },
     );
     let mut money = Money::new();
