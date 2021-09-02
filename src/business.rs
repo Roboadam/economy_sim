@@ -20,12 +20,6 @@ pub struct BusinessId(pub i32);
 pub struct Businesses(HashMap<BusinessId, Business>);
 
 impl Businesses {
-    pub fn get(&self, id: BusinessId) -> &Business {
-        self.0
-            .get(&id)
-            .expect(&format!("Unknown business id {:?}", id))
-    }
-
     pub fn get_mut(&mut self, id: BusinessId) -> &mut Business {
         self.0
             .get_mut(&id)

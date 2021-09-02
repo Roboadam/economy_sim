@@ -1,11 +1,5 @@
 use macroquad::prelude::*;
 
-use crate::{
-    components::Position,
-    tile_map::{TileMap, TileType},
-    tile_selector::TileSelector,
-};
-
 pub struct ScreenData {
     screen_dimensions: (i32, i32),
     render_target: RenderTarget,
@@ -28,18 +22,6 @@ impl ScreenData {
         };
         result.update_with_screen_size(screen_width, screen_height);
         result
-    }
-
-    pub fn screen_dimensions(&self) -> (i32, i32) {
-        self.screen_dimensions
-    }
-
-    pub fn render_target(&self) -> &RenderTarget {
-        &self.render_target
-    }
-
-    pub fn tile_width(&self) -> f32 {
-        self.tile_width
     }
 
     pub fn update_with_screen_size(&mut self, screen_width: f32, screen_height: f32) {
@@ -70,96 +52,6 @@ fn screen_dimension_in_tiles(
         let height = (1. / aspect_ratio * tiles_on_screen as f32).ceil();
         (tiles_on_screen, height as i32)
     }
-}
-
-pub fn player_coords_to_target(coords: Position, tile_width: f32) -> Vec2 {
-    vec2(coords.0 * tile_width, coords.1 * tile_width)
-}
-
-pub fn draw_tile_map(
-    tile_map: &TileMap,
-    texture_atlas: &Texture2D,
-    player_coords: Position,
-    screen_data: &ScreenData,
-) {
-    let screen_dimensions = screen_data.screen_dimensions();
-    let tile_width = screen_data.tile_width();
-    let min_x = player_coords.0 as i32 - screen_dimensions.0 / 2;
-    let min_y = player_coords.1 as i32 - screen_dimensions.1 / 2;
-    let max_x = min_x + screen_dimensions.0 + 1;
-    let max_y = min_y + screen_dimensions.1 + 1;
-
-    let tile_selector = TileSelector::new();
-    for y in min_y..max_y {
-        for x in min_x..max_x {
-            draw_texture_ex(
-                *texture_atlas,
-                x as f32 * tile_width,
-                y as f32 * tile_width,
-                WHITE,
-                texture_params(x, y, tile_width, tile_map, &tile_selector),
-            );
-        }
-    }
-}
-
-pub fn draw_to_texture(player_coords: Position, screen_data: &ScreenData) {
-    let screen_dimensions = screen_data.screen_dimensions();
-    let render_target = screen_data.render_target();
-    let tile_width = screen_data.tile_width();
-    set_camera(&Camera2D {
-        zoom: vec2(
-            2. / (tile_width * screen_dimensions.0 as f32),
-            2. / (tile_width * screen_dimensions.1 as f32),
-        ),
-        target: player_coords_to_target(player_coords, tile_width),
-        render_target: Some(*render_target),
-        ..Default::default()
-    });
-}
-
-fn texture_params(
-    x: i32,
-    y: i32,
-    tile_len: f32,
-    tile_map: &TileMap,
-    tile_selector: &TileSelector,
-) -> DrawTextureParams {
-    const TILE_PIXEL_LEN: f32 = 16f32;
-    let nw = tile_map.get_tile(x, y).unwrap_or(&TileType::SeaTile);
-    let sw = tile_map.get_tile(x, y + 1).unwrap_or(&TileType::SeaTile);
-    let ne = tile_map.get_tile(x + 1, y).unwrap_or(&TileType::SeaTile);
-    let se = tile_map
-        .get_tile(x + 1, y + 1)
-        .unwrap_or(&TileType::SeaTile);
-
-    let (x_coord, y_coord) = tile_selector.select_tile(*nw, *ne, *sw, *se);
-
-    DrawTextureParams {
-        source: Some(Rect {
-            x: TILE_PIXEL_LEN * x_coord as f32,
-            y: TILE_PIXEL_LEN * y_coord as f32,
-            w: TILE_PIXEL_LEN,
-            h: TILE_PIXEL_LEN,
-        }),
-        dest_size: Some(vec2(tile_len, tile_len)),
-        ..Default::default()
-    }
-}
-
-pub fn draw_texture_to_screen(screen_data: &ScreenData) {
-    set_default_camera();
-    clear_background(WHITE);
-    draw_texture_ex(
-        screen_data.render_target().texture,
-        0.,
-        0.,
-        WHITE,
-        DrawTextureParams {
-            dest_size: Some(vec2(screen_width(), screen_height())),
-            ..Default::default()
-        },
-    );
 }
 
 pub async fn open_pixel_texture(path: &str) -> Texture2D {

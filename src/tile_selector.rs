@@ -16,15 +16,6 @@ pub struct TileSelector(HashMap<Dirs, (i32, i32)>);
 
 #[rustfmt::skip]
 impl TileSelector {
-    pub fn select_tile(&self, nw: TileType, ne: TileType, sw: TileType, se: TileType) -> (i32, i32) {
-        if let TileType::BuildingTile(_) = nw {
-            return (4, 0);
-        }
-        let result = self.0.get(&Dirs {nw, ne, sw, se});
-        let result = result.unwrap_or(&(0, 0));
-        *result
-    }
-
     pub fn new() -> Self {
         let mut map = HashMap::new();
         map.insert( Dirs { nw: SeaTile,  ne: SeaTile,  sw: SeaTile,  se: SeaTile  },  (3, 3));
