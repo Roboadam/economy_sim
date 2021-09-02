@@ -75,9 +75,3 @@ impl People {
             .for_each(|(_, person)| person.update(seconds));
     }
 }
-
-impl Person {
-    pub fn buy(&mut self) {
-        self.hunger += 1. / 3.;
-    }
-}
