@@ -13,9 +13,7 @@ mod sprites;
 
 #[macroquad::main("City Sim")]
 async fn main() {
-    const SPEED: f32 = 5.;
-    const TILE_WIDTH: f32 = 16.;
-
+    const SPEED: f32 = 50.;
     let my_id = PersonId(0);
     let player_texture = open_pixel_texture("textures/player.png").await;
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
@@ -73,17 +71,12 @@ async fn main() {
 
         clear_background(LIGHTGRAY);
         let my_position = people.get(my_id).position;
-        draw_travel_points(&travel_points, &sprite_pool, TILE_WIDTH);
-        draw_texture(
-            player_texture,
-            my_position.0 * TILE_WIDTH,
-            my_position.1 * TILE_WIDTH,
-            WHITE,
-        );
+        draw_travel_points(&travel_points, &sprite_pool);
+        draw_texture(player_texture, my_position.0, my_position.1, WHITE);
         draw_texture(
             ai_player_texture,
-            ai_person.person.position.0 * TILE_WIDTH,
-            ai_person.person.position.1 * TILE_WIDTH,
+            ai_person.person.position.0,
+            ai_person.person.position.1,
             WHITE,
         );
 
