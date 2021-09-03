@@ -15,11 +15,8 @@ mod sprites;
 async fn main() {
     const SPEED: f32 = 5.;
     const TILE_WIDTH: f32 = 16.;
-    const TILES_ON_SCREEN: i32 = 10;
 
     let my_id = PersonId(0);
-    let mut screen_data =
-        ScreenData::new(TILES_ON_SCREEN, TILE_WIDTH, screen_width(), screen_height());
     let player_texture = open_pixel_texture("textures/player.png").await;
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
 
@@ -70,7 +67,6 @@ async fn main() {
         if curr_screen_height != screen_height() as i32
             || curr_screen_width != screen_width() as i32
         {
-            screen_data.update_with_screen_size(screen_width(), screen_height());
             curr_screen_width = screen_width() as i32;
             curr_screen_height = screen_height() as i32;
         }
