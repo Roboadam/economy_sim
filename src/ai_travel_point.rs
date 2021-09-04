@@ -12,23 +12,23 @@ pub struct AiTravelPoint {
 pub fn sample_travel_points(sprite: i32) -> Vec<AiTravelPoint> {
     vec![
         AiTravelPoint {
-            position: Position(30., 20.),
+            position: Position(200., 20.),
             sprite: sprite,
         },
         AiTravelPoint {
-            position: Position(40., 20.),
+            position: Position(300., 20.),
             sprite: sprite,
         },
         AiTravelPoint {
-            position: Position(45., 30.),
+            position: Position(245., 130.),
             sprite: sprite,
         },
         AiTravelPoint {
-            position: Position(35., 40.),
+            position: Position(135., 240.),
             sprite: sprite,
         },
         AiTravelPoint {
-            position: Position(25., 30.),
+            position: Position(25., 130.),
             sprite: sprite,
         },
     ]
