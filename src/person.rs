@@ -1,5 +1,4 @@
 use rand::{thread_rng, Rng};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::{ai_travel_point::AiTravelPoint, components::Position};
@@ -14,7 +13,7 @@ pub struct AiPerson {
     pub travel_to: Option<i32>,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
 pub struct PersonId(pub i32);
 
 pub struct People(HashMap<PersonId, Person>);
