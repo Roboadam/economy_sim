@@ -3,7 +3,8 @@ use crate::components::{EntityType, Hunger, Position};
 use crate::person::{AiPerson, People, Person, PersonId};
 use crate::sprites::SpritePool;
 use ai_travel_point::AiTravelPoint;
-use hecs::World;
+use components::TravelingTo;
+use hecs::{Entity, World};
 use macroquad::prelude::*;
 use rendering::*;
 
@@ -98,7 +99,8 @@ fn hunger(world: &mut World, seconds: f32) {
 }
 
 fn give_place_to_go(world: &mut World) {
-    for (id, (travel)) in world.query_mut::<(&mut i32, &bool)>() {
+    for (id, ()) in world.query_mut::<()>().with::<EntityType>().without::<TravelingTo>() {
+        id.a
     }
 }
 
