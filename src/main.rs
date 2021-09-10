@@ -1,7 +1,8 @@
 use crate::ai_travel_point::{draw_travel_points, sample_travel_points};
-use crate::components::{EntityType, Hunger, Position};
+use crate::components::{AiPersonTag, Hunger, Position};
 use crate::person::{AiPerson, People, Person, PersonId};
 use crate::sprites::SpritePool;
+use ::rand::{thread_rng, Rng};
 use ai_travel_point::AiTravelPoint;
 use components::TravelingTo;
 use hecs::{Entity, World};
@@ -45,7 +46,7 @@ async fn main() {
     let travel_points = sample_travel_points(travel_point_sprite);
 
     let mut world = World::new();
-    world.spawn((EntityType::AiPerson, Hunger(100.), Position(20., 20.)));
+    world.spawn((AiPersonTag, Hunger(100.), Position(20., 20.)));
 
     loop {
         if is_key_pressed(KeyCode::F) {
@@ -93,35 +94,35 @@ async fn main() {
 }
 
 fn hunger(world: &mut World, seconds: f32) {
-    for (id, (hunger,)) in world.query_mut::<(&mut Hunger,)>() {
+    for (_id, (hunger,)) in world.query_mut::<(&mut Hunger,)>() {
         hunger.0 -= seconds / 10.;
     }
 }
 
-fn give_place_to_go(world: &mut World) {
-    for (id, ()) in world.query_mut::<()>().with::<EntityType>().without::<TravelingTo>() {
-        id.a
-    }
+fn give_place_to_go(world: &mut World, num_places: i32) {
+    let mut rng = thread_rng();
+
+    let still_guys: Vec<_> = world.query::<&AiPerson>().without::<TravelingTo>().iter().collect();
+
+    still_guys.iter().for_each(|(entity,_)| {
+        let to = rng.gen_range(0..num_places);
+        world.insert_one(*entity, TravelingTo(to));
+    });
 }
 
-fn move_ai_people(world: &mut World, time: f32, travel_points: &Vec<AiTravelPoint>) {
-    for (id, (number, &flag)) in world.query_mut::<(&mut i32, &bool)>() {
-        if let Some(index) = self.travel_to {
-            if let Some(aitp) = travel_points.get(index as usize) {
-                let dx = aitp.position.0 - self.person.position.0;
-                let dy = aitp.position.1 - self.person.position.1;
-                let len = (dx * dx + dy * dy).sqrt();
-                self.person.position.0 += dx * seconds * 10. / len;
-                self.person.position.1 += dy * seconds * 10. / len;
-                if len < 0.1 {
-                    self.travel_to = None;
-                }
+fn move_ai_people(world: &mut World, time: f32, travel_points: &Vec<AiTravelPoint>, seconds: f32) {
+    for (entity, (position, _, &traveling_to)) in
+        world.query_mut::<(&mut Position, &AiPerson, &TravelingTo)>()
+    {
+        if let Some(aitp) = travel_points.get(traveling_to.0 as usize) {
+            let dx = aitp.position.0 - position.0;
+            let dy = aitp.position.1 - position.1;
+            let len = (dx * dx + dy * dy).sqrt();
+            position.0 += dx * seconds * 10. / len;
+            position.1 += dy * seconds * 10. / len;
+            if len < 0.1 {
+                world.remove_one::<TravelingTo>(entity);
             }
-        } else {
-            let mut rng = thread_rng();
-            let index = rng.gen_range(0..travel_points.len());
-            println!("rand {}", index);
-            self.travel_to = Some(index as i32);
         }
     }
 }
