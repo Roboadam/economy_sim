@@ -1,13 +1,11 @@
-use std::num;
-
 use crate::ai_travel_point::{draw_travel_points, sample_travel_points};
 use crate::components::{AiPersonTag, Hunger, Position};
-use crate::person::{AiPerson, People, Person, PersonId};
+use crate::person::{People, Person, PersonId};
 use crate::sprites::SpritePool;
 use ::rand::{thread_rng, Rng};
 use ai_travel_point::AiTravelPoint;
 use components::TravelingTo;
-use hecs::{Entity, Without, World};
+use hecs::World;
 use macroquad::prelude::*;
 use rendering::*;
 
@@ -32,14 +30,6 @@ async fn main() {
             position: Position(0., 0.),
         },
     );
-
-    let mut ai_person = AiPerson {
-        person: Person {
-            hunger: 100.,
-            position: Position(20., 20.),
-        },
-        travel_to: None,
-    };
 
     let mut curr_screen_width = screen_width() as i32;
     let mut curr_screen_height = screen_height() as i32;
@@ -87,18 +77,17 @@ async fn main() {
         let my_position = people.get(my_id).position;
         draw_travel_points(&travel_points, &sprite_pool);
         draw_texture(player_texture, my_position.0, my_position.1, WHITE);
-        draw_texture(
-            ai_player_texture,
-            ai_person.person.position.0,
-            ai_person.person.position.1,
-            WHITE,
-        );
         hunger(&mut world, get_frame_time());
         travel(&mut world, &travel_points, get_frame_time());
+        draw_ai(&mut world, &ai_player_texture);
 
-        people.update(get_frame_time());
-        ai_person.update(get_frame_time(), &travel_points);
         next_frame().await
+    }
+}
+
+fn draw_ai(world: &mut World, texture: &Texture2D) {
+    for (_, position) in world.query_mut::<&Position>() {
+        draw_texture(*texture, position.0, position.1, WHITE);
     }
 }
 
