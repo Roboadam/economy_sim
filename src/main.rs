@@ -2,11 +2,13 @@ use crate::ai_travel_point::{draw_travel_points, sample_travel_points};
 use crate::components::{AiPersonTag, Hunger, Position};
 use crate::person::{People, Person, PersonId};
 use crate::sprites::SpritePool;
-use ::rand::{thread_rng, Rng};
+use ::rand::Rng;
 use ai_travel_point::AiTravelPoint;
 use components::TravelingTo;
 use hecs::World;
 use macroquad::prelude::*;
+use rand_chacha::rand_core::SeedableRng;
+use rand_chacha::{self, ChaCha8Rng};
 use rendering::*;
 
 mod ai_travel_point;
@@ -21,6 +23,7 @@ async fn main() {
     let my_id = PersonId(0);
     let player_texture = open_pixel_texture("textures/player.png").await;
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
+    let mut rng = ChaCha8Rng::seed_from_u64(1);
 
     let mut people = People::new();
     people.add(
@@ -78,7 +81,7 @@ async fn main() {
         draw_travel_points(&travel_points, &sprite_pool);
         draw_texture(player_texture, my_position.0, my_position.1, WHITE);
         hunger(&mut world, get_frame_time());
-        travel(&mut world, &travel_points, get_frame_time());
+        travel(&mut world, &travel_points, get_frame_time(), &mut rng);
         draw_ai(&mut world, &ai_player_texture);
 
         next_frame().await
@@ -97,8 +100,12 @@ fn hunger(world: &mut World, seconds: f32) {
     }
 }
 
-fn travel(world: &mut World, travel_points: &Vec<AiTravelPoint>, seconds: f32) {
-    let mut rng = thread_rng();
+fn travel(
+    world: &mut World,
+    travel_points: &Vec<AiTravelPoint>,
+    seconds: f32,
+    rng: &mut ChaCha8Rng,
+) {
     for (_, (traveling_to, position)) in world.query_mut::<(&mut TravelingTo, &mut Position)>() {
         match traveling_to {
             TravelingTo::Nowhere => {
