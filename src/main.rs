@@ -13,6 +13,7 @@ mod entity_map;
 mod rendering;
 mod spawners;
 mod systems;
+mod quadtree;
 
 #[macroquad::main("City Sim")]
 async fn main() {
