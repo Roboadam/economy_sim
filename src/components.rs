@@ -6,4 +6,9 @@ pub enum TravelingTo {
     TravelPosition(Position),
 }
 pub struct AiPersonTag;
-pub struct BuildingTag;
+
+#[derive(Debug, Clone, Copy)]
+pub enum BuildingType {
+    Resturant,
+    Home,
+}

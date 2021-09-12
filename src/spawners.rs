@@ -14,13 +14,18 @@ pub fn spawn_ai_people(num: i32, world: &mut World, rng: &mut ChaCha8Rng) {
     }
 }
 
-pub fn spawn_buildings(num: i32, world: &mut World, rng: &mut ChaCha8Rng) -> Vec<Entity> {
+pub fn spawn_buildings(
+    num: i32,
+    world: &mut World,
+    rng: &mut ChaCha8Rng,
+    building_type: BuildingType,
+) -> Vec<Entity> {
     let mut entities = vec![];
     let screen_data = get_screen_data();
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;
     for position in random_positions(num, x_max, y_max, rng) {
-        let entity = world.spawn((BuildingTag, position));
+        let entity = world.spawn((building_type, position));
         entities.push(entity);
     }
 

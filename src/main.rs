@@ -1,3 +1,5 @@
+use components::BuildingType;
+use entity_map::OneToOne;
 use hecs::World;
 use macroquad::prelude::*;
 use rand_chacha::rand_core::SeedableRng;
@@ -7,6 +9,7 @@ use spawners::*;
 use systems::*;
 
 mod components;
+mod entity_map;
 mod rendering;
 mod spawners;
 mod systems;
@@ -18,7 +21,10 @@ async fn main() {
     let mut rng = ChaCha8Rng::seed_from_u64(2);
 
     let mut world = World::new();
-    let building_entities = spawn_buildings(5, &mut world, &mut rng);
+    let resturant_entities = spawn_buildings(5, &mut world, &mut rng, BuildingType::Resturant);
+    let home_entities = spawn_buildings(3, &mut world, &mut rng, BuildingType::Resturant);
+    let home_ownership = OneToOne::new();
+
     spawn_ai_people(3, &mut world, &mut rng);
 
     loop {
@@ -30,7 +36,7 @@ async fn main() {
         draw_ai(&mut world, &ai_player_texture);
         draw_buildings(&mut world, &building_texture);
         hunger(&mut world, get_frame_time());
-        travel(&mut world, &building_entities, get_frame_time(), &mut rng);
+        travel(&mut world, &resturant_entities, get_frame_time(), &mut rng);
 
         next_frame().await
     }

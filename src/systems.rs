@@ -16,8 +16,12 @@ pub fn hunger(world: &mut World, seconds: f32) {
     }
 }
 
+pub fn buy_homes(world: &mut World) {
+    for (entity, ) in world.query::<Pel
+}
+
 pub fn draw_buildings(world: &mut World, texture: &Texture2D) {
-    for (_, position) in world.query_mut::<&mut Position>().with::<BuildingTag>() {
+    for (_, position) in world.query_mut::<&mut Position>().with::<BuildingType>() {
         draw_texture(*texture, position.0, position.1, WHITE);
     }
 }
