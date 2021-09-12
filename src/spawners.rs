@@ -38,7 +38,7 @@ fn random_positions(num: i32, x_max: f32, y_max: f32, rng: &mut ChaCha8Rng) -> V
         .map(|_i| {
             let x = rng.gen_range(0f32..x_max);
             let y = rng.gen_range(0f32..y_max);
-            Position(x, y)
+            Position { x, y }
         })
         .collect()
 }

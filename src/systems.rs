@@ -6,7 +6,7 @@ use rand_chacha::ChaCha8Rng;
 
 pub fn draw_ai(world: &mut World, texture: &Texture2D) {
     for (_, position) in world.query_mut::<With<AiPersonTag, &Position>>() {
-        draw_texture(*texture, position.0, position.1, WHITE);
+        draw_texture(*texture, position.x, position.y, WHITE);
     }
 }
 
@@ -40,7 +40,7 @@ pub fn has_home(entity: Entity, home_ownership: &OneToOne) -> bool {
 
 pub fn draw_buildings(world: &mut World, texture: &Texture2D) {
     for (_, position) in world.query_mut::<&mut Position>().with::<BuildingType>() {
-        draw_texture(*texture, position.0, position.1, WHITE);
+        draw_texture(*texture, position.x, position.y, WHITE);
     }
 }
 
@@ -82,11 +82,11 @@ fn move_ai_people(
     to_position: &Position,
     seconds: f32,
 ) -> MoveResult {
-    let dx = to_position.0 - from_position.0;
-    let dy = to_position.1 - from_position.1;
+    let dx = to_position.x - from_position.x;
+    let dy = to_position.y - from_position.y;
     let len = (dx * dx + dy * dy).sqrt();
-    from_position.0 += dx * seconds * 50. / len;
-    from_position.1 += dy * seconds * 50. / len;
+    from_position.x += dx * seconds * 50. / len;
+    from_position.y += dy * seconds * 50. / len;
     if len < 0.1 {
         return MoveResult::Done;
     }
