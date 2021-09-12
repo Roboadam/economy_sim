@@ -1,43 +1,20 @@
-use macroquad::prelude::WHITE;
-use macroquad::texture::draw_texture;
+use rand::Rng;
+use rand_chacha::ChaCha8Rng;
 
 use crate::components::Position;
-use crate::sprites::SpritePool;
 
-pub struct AiTravelPoint {
-    pub position: Position,
-    pub sprite: i32,
-}
-
-pub fn sample_travel_points(sprite: i32) -> Vec<AiTravelPoint> {
-    vec![
-        AiTravelPoint {
-            position: Position(200., 20.),
-            sprite: sprite,
-        },
-        AiTravelPoint {
-            position: Position(300., 20.),
-            sprite: sprite,
-        },
-        AiTravelPoint {
-            position: Position(245., 130.),
-            sprite: sprite,
-        },
-        AiTravelPoint {
-            position: Position(135., 240.),
-            sprite: sprite,
-        },
-        AiTravelPoint {
-            position: Position(25., 130.),
-            sprite: sprite,
-        },
-    ]
-}
-
-pub fn draw_travel_points(points: &Vec<AiTravelPoint>, sprites: &SpritePool) {
-    points.iter().for_each(|aitp| {
-        if let Some(texture) = sprites.get(aitp.sprite) {
-            draw_texture(texture.0, aitp.position.0, aitp.position.1, WHITE);
-        }
-    });
+pub fn building_positions(
+    num_buildings: i32,
+    x_max: f32,
+    y_max: f32,
+    rng: &mut ChaCha8Rng,
+) -> Vec<Position> {
+    (0..num_buildings)
+        .into_iter()
+        .map(|_i| {
+            let x = rng.gen_range(0f32..x_max);
+            let y = rng.gen_range(0f32..y_max);
+            Position(x, y)
+        })
+        .collect()
 }
