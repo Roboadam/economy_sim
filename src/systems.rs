@@ -1,4 +1,4 @@
-use crate::components::*;
+use crate::{components::*, entity_map::OneToOne};
 use ::rand::Rng;
 use hecs::{Entity, With, World};
 use macroquad::prelude::*;
@@ -16,8 +16,22 @@ pub fn hunger(world: &mut World, seconds: f32) {
     }
 }
 
-pub fn buy_homes(world: &mut World) {
-    for (entity, ) in world.query::<Pel
+pub fn buy_homes(world: &mut World, home_ownership: &mut OneToOne) {
+    let people = world
+        .query_mut::<&AiPersonTag>()
+        .into_iter()
+        .map(|(e, _)| e)
+        .collect::<Vec<_>>();
+    let homes = world
+        .query_mut::<&BuildingType>()
+        .into_iter()
+        .filter(|(_, bt)| **bt == BuildingType::Home)
+        .map(|(e, _)| e)
+        .collect::<Vec<_>>();
+    people
+        .into_iter()
+        .zip(homes.into_iter())
+        .for_each(|(p, h)| home_ownership.insert(p, h).unwrap_or_default());
 }
 
 pub fn draw_buildings(world: &mut World, texture: &Texture2D) {
