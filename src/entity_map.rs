@@ -29,4 +29,8 @@ impl OneToOne {
     pub fn get(&self, entity: Entity) -> Option<Entity> {
         self.0.get(&entity).map(|e| *e)
     }
+
+    pub fn contains_key(&self, entity: Entity) -> bool {
+        self.0.contains_key(&entity)
+    }
 }

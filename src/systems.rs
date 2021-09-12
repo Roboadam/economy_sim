@@ -34,6 +34,10 @@ pub fn buy_homes(world: &mut World, home_ownership: &mut OneToOne) {
         .for_each(|(p, h)| home_ownership.insert(p, h).unwrap_or_default());
 }
 
+pub fn has_home(entity: Entity, home_ownership: &OneToOne) -> bool {
+    home_ownership.contains_key(entity)
+}
+
 pub fn draw_buildings(world: &mut World, texture: &Texture2D) {
     for (_, position) in world.query_mut::<&mut Position>().with::<BuildingType>() {
         draw_texture(*texture, position.0, position.1, WHITE);
