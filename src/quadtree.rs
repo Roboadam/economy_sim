@@ -38,12 +38,45 @@ impl Quadtree {
             self.subdivide();
         }
 
-        let mut children = self.children.as_ref().expect("Subdivide should have created children");
-        if let Ok(_)  = children.north_west.insert(position) {
-            return Ok(())
+        let children = self.children.as_mut().unwrap();
+
+        if children.north_west.insert(position).is_ok() {
+            return Ok(());
+        }
+        if children.north_east.insert(position).is_ok() {
+            return Ok(());
+        }
+        if children.south_west.insert(position).is_ok() {
+            return Ok(());
+        }
+        children.south_east.insert(position)
+    }
+
+    pub fn query_range(&self, range: &AABB) -> Vec<Position> {
+        let mut points_in_range = vec![];
+
+        if !self.boundary.intersects_aabb(&range) {
+            return points_in_range;
         }
 
-        Ok(())
+        for point in &self.points {
+            if range.contains_position(*point) {
+                points_in_range.push(*point);
+            }
+        }
+
+        if let Some(children) = &self.children {
+            let mut nw = children.north_west.query_range(range);
+            let mut ne = children.north_east.query_range(range);
+            let mut sw = children.south_west.query_range(range);
+            let mut se = children.south_east.query_range(range);
+            points_in_range.append(&mut nw);
+            points_in_range.append(&mut ne);
+            points_in_range.append(&mut sw);
+            points_in_range.append(&mut se);
+        }
+
+        points_in_range
     }
 
     pub fn subdivide(&mut self) {
