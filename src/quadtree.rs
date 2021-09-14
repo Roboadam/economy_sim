@@ -4,7 +4,7 @@ const QT_NODE_CAPACITY: usize = 4;
 
 pub struct Quadtree {
     boundary: AABB,
-    points: Vec<Position>,
+    points: Vec<(Position, i32)>,
     children: Option<Children>,
 }
 
@@ -24,13 +24,13 @@ impl Quadtree {
         }
     }
 
-    pub fn insert(&mut self, position: Position) -> Result<(), ()> {
+    pub fn insert(&mut self, position: Position, value: i32) -> Result<(), ()> {
         if !self.boundary.contains_position(position) {
             return Err(());
         }
 
         if self.points.len() < QT_NODE_CAPACITY && self.children.is_none() {
-            self.points.push(position);
+            self.points.push((position, value));
             return Ok(());
         }
 
@@ -40,19 +40,19 @@ impl Quadtree {
 
         let children = self.children.as_mut().unwrap();
 
-        if children.north_west.insert(position).is_ok() {
+        if children.north_west.insert(position, value).is_ok() {
             return Ok(());
         }
-        if children.north_east.insert(position).is_ok() {
+        if children.north_east.insert(position, value).is_ok() {
             return Ok(());
         }
-        if children.south_west.insert(position).is_ok() {
+        if children.south_west.insert(position, value).is_ok() {
             return Ok(());
         }
-        children.south_east.insert(position)
+        children.south_east.insert(position, value)
     }
 
-    pub fn query_range(&self, range: &AABB) -> Vec<Position> {
+    pub fn query_range(&self, range: &AABB) -> Vec<(Position, i32)> {
         let mut points_in_range = vec![];
 
         if !self.boundary.intersects_aabb(&range) {
@@ -60,7 +60,7 @@ impl Quadtree {
         }
 
         for point in &self.points {
-            if range.contains_position(*point) {
+            if range.contains_position(point.0) {
                 points_in_range.push(*point);
             }
         }

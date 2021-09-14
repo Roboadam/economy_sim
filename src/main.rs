@@ -1,19 +1,24 @@
-use components::BuildingType;
+use std::cmp::max;
+
+use components::{BuildingType, Position};
 use entity_map::OneToOne;
-use hecs::World;
+// use hecs::World;
 use macroquad::prelude::*;
+use quadtree::AABB;
 use rand_chacha::rand_core::SeedableRng;
 use rand_chacha::{self, ChaCha8Rng};
 use rendering::*;
 use spawners::*;
 use systems::*;
+use world::W;
 
 mod components;
 mod entity_map;
+mod quadtree;
 mod rendering;
 mod spawners;
 mod systems;
-mod quadtree;
+mod world;
 
 #[macroquad::main("City Sim")]
 async fn main() {
@@ -21,7 +26,12 @@ async fn main() {
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
     let mut rng = ChaCha8Rng::seed_from_u64(2);
 
-    let mut world = World::new();
+    let half_dimension = max(get_screen_data().width(), get_screen_data().height()) as f32 / 2.;
+    let center = Position {
+        x: half_dimension,
+        y: half_dimension,
+    };
+    let mut world = W::new(AABB::new(center, half_dimension));
     let resturant_entities = spawn_buildings(5, &mut world, &mut rng, BuildingType::Resturant);
     let home_entities = spawn_buildings(3, &mut world, &mut rng, BuildingType::Resturant);
     let home_ownership = OneToOne::new();
