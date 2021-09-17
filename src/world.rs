@@ -8,8 +8,9 @@ use crate::{
 };
 
 pub struct W {
-    entities: HashMap<i32, Vec<Component>>,
-    house_index: Quadtree,
+    next_index: i32,
+    entities: HashMap<i32, HashMap<Component, usize>>,
+    resturant_index: Quadtree,
     position_storage: Vec<Position>,
     sprite_storage: Vec<Texture2D>,
 }
@@ -17,14 +18,32 @@ pub struct W {
 impl W {
     pub fn new(aabb: AABB) -> Self {
         Self {
+            next_index: 0,
             entities: HashMap::new(),
-            house_index: Quadtree::new(aabb),
+            resturant_index: Quadtree::new(aabb),
             position_storage: Vec::new(),
             sprite_storage: Vec::new(),
         }
     }
+
+    pub fn add_sprite_component(&mut self, sprite: Texture2D) -> usize {
+        self.sprite_storage.push(sprite);
+        self.sprite_storage.len() - 1
+    }
+
+    pub fn add_resturant(&self, sprite: usize, position: Position) {
+        let position_index = self.position_storage.len();
+        self.position_storage.push(position);
+
+        let entity = HashMap::new();
+        entity.insert(Component::Position, position_index);
+
+        self.entities.insert(self.next_index, entity);
+        self.next_index += 1;
+    }
 }
 
+#[derive(PartialEq, Eq, Hash)]
 pub enum Component {
     Position,
     Sprite,
