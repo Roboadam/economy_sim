@@ -32,7 +32,9 @@ async fn main() {
         y: half_dimension,
     };
     let mut world = W::new(AABB::new(center, half_dimension));
-    let resturant_entities = spawn_buildings(5, &mut world, &mut rng, BuildingType::Resturant);
+    let building_sprite = world.add_sprite_component(building_texture);
+
+    let resturant_entities = spawn_resturants(5, building_sprite, &mut world, &mut rng);
     let home_entities = spawn_buildings(3, &mut world, &mut rng, BuildingType::Resturant);
     let home_ownership = OneToOne::new();
 

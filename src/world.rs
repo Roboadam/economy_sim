@@ -31,15 +31,18 @@ impl W {
         self.sprite_storage.len() - 1
     }
 
-    pub fn add_resturant(&self, sprite: usize, position: Position) {
+    pub fn add_resturant_entity(&self, sprite: usize, position: Position) -> i32 {
+        let entity_index = self.next_index;
+        self.next_index += 1;
+
         let position_index = self.position_storage.len();
         self.position_storage.push(position);
 
         let entity = HashMap::new();
         entity.insert(Component::Position, position_index);
 
-        self.entities.insert(self.next_index, entity);
-        self.next_index += 1;
+        self.entities.insert(entity_index, entity);
+        entity_index
     }
 }
 
