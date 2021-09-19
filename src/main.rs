@@ -34,8 +34,7 @@ async fn main() {
     let mut world = W::new(AABB::new(center, half_dimension));
     let building_sprite = world.add_sprite_component(building_texture);
 
-    let resturant_entities = spawn_resturants(5, building_sprite, &mut world, &mut rng);
-    let home_entities = spawn_buildings(3, &mut world, &mut rng, BuildingType::Resturant);
+    let resturant_entities = spawn_businesses(5, building_sprite, &mut world, &mut rng);
     let home_ownership = OneToOne::new();
 
     spawn_ai_people(3, &mut world, &mut rng);

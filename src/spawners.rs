@@ -13,13 +13,23 @@ pub fn spawn_ai_people(num: i32, world: &mut World, rng: &mut ChaCha8Rng) {
     }
 }
 
-pub fn spawn_resturants(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
+pub fn spawn_businesses(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
     let screen_data = get_screen_data();
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;
 
     for position in random_positions(num, x_max, y_max, rng) {
-        w.add_resturant_entity(sprite, position);
+        w.add_business_entity(sprite, position);
+    }
+}
+
+pub fn spawn_homes(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
+    let screen_data = get_screen_data();
+    let x_max = screen_data.width() as f32;
+    let y_max = screen_data.height() as f32;
+
+    for position in random_positions(num, x_max, y_max, rng) {
+        w.add_home_entity(sprite, position);
     }
 }
 

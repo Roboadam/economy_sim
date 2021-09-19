@@ -10,7 +10,7 @@ use crate::{
 pub struct W {
     next_index: i32,
     entities: HashMap<i32, HashMap<Component, usize>>,
-    resturant_index: Quadtree,
+    business_index: Quadtree,
     position_storage: Vec<Position>,
     sprite_storage: Vec<Texture2D>,
 }
@@ -20,7 +20,7 @@ impl W {
         Self {
             next_index: 0,
             entities: HashMap::new(),
-            resturant_index: Quadtree::new(aabb),
+            business_index: Quadtree::new(aabb),
             position_storage: Vec::new(),
             sprite_storage: Vec::new(),
         }
@@ -31,7 +31,15 @@ impl W {
         self.sprite_storage.len() - 1
     }
 
-    pub fn add_resturant_entity(&self, sprite: usize, position: Position) -> i32 {
+    pub fn add_business_entity(&self, sprite: usize, position: Position) -> i32 {
+        self.add_position_entity(sprite, position, Component::Business)
+    }
+
+    pub fn add_home_entity(&self, sprite: usize, position: Position) -> i32 {
+        self.add_position_entity(sprite, position, Component::Home)
+    }
+
+    fn add_position_entity(&self, sprite: usize, position: Position, component: Component) -> i32 {
         let entity_index = self.next_index;
         self.next_index += 1;
 
@@ -40,6 +48,7 @@ impl W {
 
         let entity = HashMap::new();
         entity.insert(Component::Position, position_index);
+        entity.insert(component, 0);
 
         self.entities.insert(entity_index, entity);
         entity_index
@@ -50,6 +59,6 @@ impl W {
 pub enum Component {
     Position,
     Sprite,
-    Building,
+    Home,
     Business,
 }
