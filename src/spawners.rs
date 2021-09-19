@@ -4,7 +4,7 @@ use rand_chacha::ChaCha8Rng;
 
 use crate::{components::*, world::W};
 
-pub fn spawn_ai_people(num: i32, world: &mut World, rng: &mut ChaCha8Rng) {
+pub fn spawn_ai_people(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
     let screen_data = get_screen_data();
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;

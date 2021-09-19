@@ -35,7 +35,7 @@ async fn main() {
     let building_sprite = world.add_sprite_component(building_texture);
 
     let resturant_entities = spawn_businesses(5, building_sprite, &mut world, &mut rng);
-    let home_ownership = OneToOne::new();
+    let home_entities = spawn_homes(3, building_sprite, &mut world, &mut rng);
 
     spawn_ai_people(3, &mut world, &mut rng);
 

@@ -39,6 +39,10 @@ impl W {
         self.add_position_entity(sprite, position, Component::Home)
     }
 
+    pub fn add_ai_person_entity(&self, sprite: usize, position: Position) -> i32 {
+        self.add_position_entity(sprite, position, Component::Home)
+    }
+
     fn add_position_entity(&self, sprite: usize, position: Position, component: Component) -> i32 {
         let entity_index = self.next_index;
         self.next_index += 1;
