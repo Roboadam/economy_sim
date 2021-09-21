@@ -9,7 +9,7 @@ pub fn spawn_ai_people(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng)
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;
     for position in random_positions(num, x_max, y_max, rng) {
-        world.spawn((AiPersonTag, Hunger(100.), position, TravelingTo::Nowhere));
+        w.add_ai_person_entity(sprite, position);
     }
 }
 

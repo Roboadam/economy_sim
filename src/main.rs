@@ -1,8 +1,6 @@
 use std::cmp::max;
 
-use components::{BuildingType, Position};
-use entity_map::OneToOne;
-// use hecs::World;
+use components::Position;
 use macroquad::prelude::*;
 use quadtree::AABB;
 use rand_chacha::rand_core::SeedableRng;
@@ -33,11 +31,11 @@ async fn main() {
     };
     let mut world = W::new(AABB::new(center, half_dimension));
     let building_sprite = world.add_sprite_component(building_texture);
+    let person_sprite = world.add_sprite_component(ai_player_texture);
 
-    let resturant_entities = spawn_businesses(5, building_sprite, &mut world, &mut rng);
-    let home_entities = spawn_homes(3, building_sprite, &mut world, &mut rng);
-
-    spawn_ai_people(3, &mut world, &mut rng);
+    spawn_businesses(5, building_sprite, &mut world, &mut rng);
+    spawn_homes(3, building_sprite, &mut world, &mut rng);
+    spawn_ai_people(3, person_sprite, &mut world, &mut rng);
 
     loop {
         if is_key_pressed(KeyCode::F) {
@@ -45,10 +43,10 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
-        draw_ai(&mut world, &ai_player_texture);
-        draw_buildings(&mut world, &building_texture);
-        hunger(&mut world, get_frame_time());
-        travel(&mut world, &resturant_entities, get_frame_time(), &mut rng);
+        draw_ai(&mut world);
+        // draw_buildings(&mut world, &building_texture);
+        // hunger(&mut world, get_frame_time());
+        // travel(&mut world, &resturant_entities, get_frame_time(), &mut rng);
 
         next_frame().await
     }

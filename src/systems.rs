@@ -1,12 +1,12 @@
-use crate::{components::*, entity_map::OneToOne};
+use crate::{components::*, entity_map::OneToOne, world::W};
 use ::rand::Rng;
-use hecs::{Entity, With, World};
+use hecs::{Entity, World};
 use macroquad::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-pub fn draw_ai(world: &mut World, texture: &Texture2D) {
-    for (_, position) in world.query_mut::<With<AiPersonTag, &Position>>() {
-        draw_texture(*texture, position.x, position.y, WHITE);
+pub fn draw_ai(world: &mut W) {
+    for (position, sprite) in world.ai_positions_and_sprites() {
+        draw_texture(*sprite, position.x, position.y, WHITE);
     }
 }
 
