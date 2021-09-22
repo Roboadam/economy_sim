@@ -17,7 +17,7 @@ pub struct W {
 }
 
 impl W {
-    pub fn new(aabb: AABB) -> Self {
+    pub fn new(aabb: &AABB) -> Self {
         Self {
             next_index: 0,
             entities: HashMap::new(),
@@ -53,6 +53,23 @@ impl W {
         self.ai_person_index
             .iter()
             .map(|entity| self.entities.get(entity))
+            .filter(|option| option.is_some())
+            .map(|option| {
+                let components = option.expect("filtered out nones");
+                let position_index = components.get(&Component::Position).unwrap();
+                let sprite_index = components.get(&Component::Sprite).unwrap();
+                let position = self.position_storage.get(*position_index).unwrap();
+                let sprite = self.sprite_storage.get(*sprite_index).unwrap();
+                (position, sprite)
+            })
+            .collect()
+    }
+
+    pub fn business_positions_and_sprites(&self, range: &AABB) -> Vec<(&Position, &Texture2D)> {
+        self.business_index
+            .query_range(range)
+            .iter()
+            .map(|(_, entity)| self.entities.get(entity))
             .filter(|option| option.is_some())
             .map(|option| {
                 let components = option.expect("filtered out nones");

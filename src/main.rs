@@ -29,7 +29,8 @@ async fn main() {
         x: half_dimension,
         y: half_dimension,
     };
-    let mut world = W::new(AABB::new(center, half_dimension));
+    let world_bounding_box = AABB::new(center, half_dimension);
+    let mut world = W::new(&world_bounding_box);
     let building_sprite = world.add_sprite_component(building_texture);
     let person_sprite = world.add_sprite_component(ai_player_texture);
 
@@ -44,8 +45,7 @@ async fn main() {
 
         clear_background(LIGHTGRAY);
         draw_ai(&mut world);
-        // draw_buildings(&mut world, &building_texture);
-        // hunger(&mut world, get_frame_time());
+        draw_businesses(&mut world, &world_bounding_box);
         // travel(&mut world, &resturant_entities, get_frame_time(), &mut rng);
 
         next_frame().await

@@ -16,9 +16,9 @@ struct Children {
 }
 
 impl Quadtree {
-    pub fn new(aabb: AABB) -> Self {
+    pub fn new(aabb: &AABB) -> Self {
         Quadtree {
-            boundary: aabb,
+            boundary: aabb.clone(),
             points: Vec::with_capacity(QT_NODE_CAPACITY),
             children: None,
         }
@@ -95,14 +95,15 @@ impl Quadtree {
             AABB::new_min_max(center.x, self.boundary.x_max, center.y, self.boundary.y_max);
 
         self.children = Some(Children {
-            north_west: Box::new(Quadtree::new(north_west)),
-            north_east: Box::new(Quadtree::new(north_east)),
-            south_west: Box::new(Quadtree::new(south_west)),
-            south_east: Box::new(Quadtree::new(south_east)),
+            north_west: Box::new(Quadtree::new(&north_west)),
+            north_east: Box::new(Quadtree::new(&north_east)),
+            south_west: Box::new(Quadtree::new(&south_west)),
+            south_east: Box::new(Quadtree::new(&south_east)),
         });
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct AABB {
     x_min: f32,
     x_max: f32,

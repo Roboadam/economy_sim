@@ -1,4 +1,4 @@
-use crate::{components::*, entity_map::OneToOne, world::W};
+use crate::{components::*, entity_map::OneToOne, quadtree::AABB, world::W};
 use ::rand::Rng;
 use hecs::{Entity, World};
 use macroquad::prelude::*;
@@ -38,9 +38,9 @@ pub fn has_home(entity: Entity, home_ownership: &OneToOne) -> bool {
     home_ownership.contains_key(entity)
 }
 
-pub fn draw_buildings(world: &mut World, texture: &Texture2D) {
-    for (_, position) in world.query_mut::<&mut Position>().with::<BuildingType>() {
-        draw_texture(*texture, position.x, position.y, WHITE);
+pub fn draw_businesses(world: &mut W, aabb: &AABB) {
+    for (position, sprite) in world.business_positions_and_sprites(aabb) {
+        draw_texture(*sprite, position.x, position.y, WHITE);
     }
 }
 
