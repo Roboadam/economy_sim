@@ -45,8 +45,7 @@ pub fn draw_businesses(world: &mut W, aabb: &AABB) {
 }
 
 pub fn travel(
-    world: &mut World,
-    building_entities: &Vec<Entity>,
+    world: &mut W,
     seconds: f32,
     rng: &mut ChaCha8Rng,
 ) {

@@ -35,7 +35,7 @@ impl W {
 
     pub fn add_business_entity(&mut self, sprite: usize, position: Position) -> i32 {
         let entity = self.add_position_entity(sprite, position, Component::Business);
-        self.business_index.insert(position, entity);
+        let _ = self.business_index.insert(position, entity);
         entity
     }
 

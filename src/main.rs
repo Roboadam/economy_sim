@@ -46,7 +46,7 @@ async fn main() {
         clear_background(LIGHTGRAY);
         draw_ai(&mut world);
         draw_businesses(&mut world, &world_bounding_box);
-        // travel(&mut world, &resturant_entities, get_frame_time(), &mut rng);
+        travel(&mut world, &resturant_entities, get_frame_time(), &mut rng);
 
         next_frame().await
     }
