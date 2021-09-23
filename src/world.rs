@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
 use macroquad::prelude::Texture2D;
+use rand::SeedableRng;
+use rand_chacha::ChaCha8Rng;
 
 use crate::{
-    components::Position,
+    components::{Position, TravelingTo},
     quadtree::{Quadtree, AABB},
 };
 
@@ -13,18 +15,22 @@ pub struct W {
     business_index: Quadtree,
     position_storage: Vec<Position>,
     sprite_storage: Vec<Texture2D>,
+    traveling_to_storage: Vec<TravelingTo>,
     ai_person_index: Vec<i32>,
+    rng: ChaCha8Rng,
 }
 
 impl W {
-    pub fn new(aabb: &AABB) -> Self {
+    pub fn new(aabb: &AABB, seed: &u64) -> Self {
         Self {
             next_index: 0,
             entities: HashMap::new(),
             business_index: Quadtree::new(aabb),
             position_storage: Vec::new(),
             sprite_storage: Vec::new(),
+            traveling_to_storage: Vec::new(),
             ai_person_index: Vec::new(),
+            rng: ChaCha8Rng::seed_from_u64(*seed),
         }
     }
 
@@ -45,6 +51,8 @@ impl W {
 
     pub fn add_ai_person_entity(&mut self, sprite: usize, position: Position) -> i32 {
         let entity = self.add_position_entity(sprite, position, Component::AiPerson);
+        let traveling_to_index = self.traveling_to_storage.len();
+        self.entities[&entity].insert(Component::TravelingTo, traveling_to_index);
         self.ai_person_index.push(entity);
         entity
     }
@@ -111,4 +119,5 @@ pub enum Component {
     Home,
     Business,
     AiPerson,
+    TravelingTo,
 }

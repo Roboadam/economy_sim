@@ -22,15 +22,13 @@ mod world;
 async fn main() {
     let building_texture = open_pixel_texture("textures/ai_travel_point.png").await;
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
-    let mut rng = ChaCha8Rng::seed_from_u64(2);
-
     let half_dimension = max(get_screen_data().width(), get_screen_data().height()) as f32 / 2.;
     let center = Position {
         x: half_dimension,
         y: half_dimension,
     };
     let world_bounding_box = AABB::new(center, half_dimension);
-    let mut world = W::new(&world_bounding_box);
+    let mut world = W::new(&world_bounding_box, &2);
     let building_sprite = world.add_sprite_component(building_texture);
     let person_sprite = world.add_sprite_component(ai_player_texture);
 

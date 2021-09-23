@@ -47,7 +47,6 @@ pub fn draw_businesses(world: &mut W, aabb: &AABB) {
 pub fn travel(
     world: &mut W,
     seconds: f32,
-    rng: &mut ChaCha8Rng,
 ) {
     for (_, (traveling_to, from_position)) in world
         .query::<(&mut TravelingTo, &mut Position)>()
