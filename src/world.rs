@@ -57,6 +57,17 @@ impl W {
         entity
     }
 
+    pub fn traveling_to_and_positions(&self) -> Vec<i32> {
+        self.entities
+            .iter()
+            .filter(|(_, components)| {
+                components.contains_key(&Component::TravelingTo)
+                    && components.contains_key(&Component::Position)
+            })
+            .map(|(entity_id, _)| *entity_id)
+            .collect()
+    }
+
     pub fn ai_positions_and_sprites(&self) -> Vec<(&Position, &Texture2D)> {
         self.ai_person_index
             .iter()

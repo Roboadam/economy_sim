@@ -48,6 +48,9 @@ pub fn travel(
     world: &mut W,
     seconds: f32,
 ) {
+    for entity_id in world.traveling_to_and_positions() {
+
+    }
     for (_, (traveling_to, from_position)) in world
         .query::<(&mut TravelingTo, &mut Position)>()
         .into_iter()
