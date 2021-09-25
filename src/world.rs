@@ -17,7 +17,7 @@ pub struct W {
     sprite_storage: Vec<Texture2D>,
     traveling_to_storage: Vec<TravelingTo>,
     ai_person_index: Vec<i32>,
-    rng: ChaCha8Rng,
+    pub rng: ChaCha8Rng,
 }
 
 impl W {
@@ -32,6 +32,19 @@ impl W {
             ai_person_index: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(*seed),
         }
+    }
+
+    pub fn position_for_entity_id(&self, entity_id: i32) -> Option<&Position> {
+        let position_index = self.entities.get(&entity_id)?.get(&Component::Position)?;
+        self.position_storage.get(*position_index)
+    }
+
+    pub fn traveling_to_for_entity_id(&self, entity_id: i32) -> Option<&TravelingTo> {
+        let index = self
+            .entities
+            .get(&entity_id)?
+            .get(&Component::TravelingTo)?;
+        self.traveling_to_storage.get(*index)
     }
 
     pub fn add_sprite_component(&mut self, sprite: Texture2D) -> usize {
@@ -81,6 +94,14 @@ impl W {
                 let sprite = self.sprite_storage.get(*sprite_index).unwrap();
                 (position, sprite)
             })
+            .collect()
+    }
+
+    pub fn business_positions(&self, range: &AABB) -> Vec<&Position> {
+        self.business_index
+            .query_range(range)
+            .iter()
+            .map(|(position, _)| position)
             .collect()
     }
 

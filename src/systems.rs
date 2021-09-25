@@ -44,30 +44,26 @@ pub fn draw_businesses(world: &mut W, aabb: &AABB) {
     }
 }
 
-pub fn travel(
-    world: &mut W,
-    seconds: f32,
-) {
-    for entity_id in world.traveling_to_and_positions() {
-
-    }
-    for (_, (traveling_to, from_position)) in world
-        .query::<(&mut TravelingTo, &mut Position)>()
-        .into_iter()
-    {
-        match traveling_to {
-            TravelingTo::Nowhere => {
-                let index = rng.gen_range(0..building_entities.len());
-                if let Ok(to_position) = world.get::<Position>(building_entities[index]) {
-                    *traveling_to = TravelingTo::TravelPosition(*to_position);
+pub fn travel(w: &mut W, range: &AABB, seconds: f32) {
+    for entity_id in w.traveling_to_and_positions() {
+        if let Some(traveling_to) = w.traveling_to_for_entity_id(entity_id) {
+            match traveling_to {
+                TravelingTo::Nowhere => {
+                    let business_positions = w.business_positions(range);
+                    let index = w.rng.gen_range(0..business_positions.len());
+                    // set traveling to here
+                    if let Ok(to_position) = world.get::<Position>(building_entities[index]) {
+                        *traveling_to = TravelingTo::TravelPosition(*to_position);
+                    }
+                }
+                TravelingTo::TravelPosition(to_position) => {
+                    let move_result = move_ai_people(from_position, to_position, seconds);
+                    if move_result == MoveResult::Done {
+                        *traveling_to = TravelingTo::Nowhere;
+                    }
                 }
             }
-            TravelingTo::TravelPosition(to_position) => {
-                let move_result = move_ai_people(from_position, to_position, seconds);
-                if move_result == MoveResult::Done {
-                    *traveling_to = TravelingTo::Nowhere;
-                }
-            }
+            if let Some(position) = w.position_for_entity_id(entity_id) {}
         }
     }
 }
