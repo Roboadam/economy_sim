@@ -34,9 +34,21 @@ impl W {
         }
     }
 
-    pub fn position_for_entity_id(&self, entity_id: i32) -> Option<&Position> {
+    pub fn update_traveling_to(&mut self, entity_id: i32, position: &Position) {
+        if let Some(components) = self.entities.get(&entity_id) {
+            if let Some(index) = components.get(&Component::TravelingTo) {
+                if let Some(traveling_to) = self.traveling_to_storage.get(*index) {
+                    traveling_to = &TravelingTo::TravelPosition(*position);
+                }
+            }
+        }
+    }
+
+    pub fn position_for_entity_id(&self, entity_id: i32) -> Option<Position> {
         let position_index = self.entities.get(&entity_id)?.get(&Component::Position)?;
-        self.position_storage.get(*position_index)
+        self.position_storage
+            .get(*position_index)
+            .map(|p| p.clone())
     }
 
     pub fn traveling_to_for_entity_id(&self, entity_id: i32) -> Option<&TravelingTo> {
@@ -97,11 +109,11 @@ impl W {
             .collect()
     }
 
-    pub fn business_positions(&self, range: &AABB) -> Vec<&Position> {
+    pub fn business_positions(&self, range: &AABB) -> Vec<Position> {
         self.business_index
             .query_range(range)
             .iter()
-            .map(|(position, _)| position)
+            .map(|(position, _)| position.clone())
             .collect()
     }
 

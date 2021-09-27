@@ -52,7 +52,7 @@ impl Quadtree {
         children.south_east.insert(position, value)
     }
 
-    pub fn query_range(&self, range: &AABB) -> Vec<(Position, i32)> {
+    pub fn query_range(&self, range: &AABB) -> Vec<&(Position, i32)> {
         let mut points_in_range = vec![];
 
         if !self.boundary.intersects_aabb(&range) {
@@ -61,7 +61,7 @@ impl Quadtree {
 
         for point in &self.points {
             if range.contains_position(point.0) {
-                points_in_range.push(*point);
+                points_in_range.push(point);
             }
         }
 

@@ -4,31 +4,31 @@ use rand_chacha::ChaCha8Rng;
 
 use crate::{components::*, world::W};
 
-pub fn spawn_ai_people(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
+pub fn spawn_ai_people(num: i32, sprite: usize, w: &mut W) {
     let screen_data = get_screen_data();
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;
-    for position in random_positions(num, x_max, y_max, rng) {
+    for position in random_positions(num, x_max, y_max, &mut w.rng) {
         w.add_ai_person_entity(sprite, position);
     }
 }
 
-pub fn spawn_businesses(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
+pub fn spawn_businesses(num: i32, sprite: usize, w: &mut W) {
     let screen_data = get_screen_data();
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;
 
-    for position in random_positions(num, x_max, y_max, rng) {
+    for position in random_positions(num, x_max, y_max, &mut w.rng) {
         w.add_business_entity(sprite, position);
     }
 }
 
-pub fn spawn_homes(num: i32, sprite: usize, w: &mut W, rng: &mut ChaCha8Rng) {
+pub fn spawn_homes(num: i32, sprite: usize, w: &mut W) {
     let screen_data = get_screen_data();
     let x_max = screen_data.width() as f32;
     let y_max = screen_data.height() as f32;
 
-    for position in random_positions(num, x_max, y_max, rng) {
+    for position in random_positions(num, x_max, y_max, &mut w.rng) {
         w.add_home_entity(sprite, position);
     }
 }
