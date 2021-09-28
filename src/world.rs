@@ -34,11 +34,11 @@ impl W {
         }
     }
 
-    pub fn update_traveling_to(&mut self, entity_id: i32, position: &Position) {
+    pub fn update_traveling_to(&mut self, entity_id: i32, new_traveling_to: TravelingTo) {
         if let Some(components) = self.entities.get(&entity_id) {
             if let Some(index) = components.get(&Component::TravelingTo) {
-                if let Some(traveling_to) = self.traveling_to_storage.get(*index) {
-                    traveling_to = &TravelingTo::TravelPosition(*position);
+                if self.traveling_to_storage.len() > *index {
+                    self.traveling_to_storage[*index] = new_traveling_to;
                 }
             }
         }

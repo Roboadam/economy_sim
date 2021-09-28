@@ -24,18 +24,21 @@ pub fn travel(w: &mut W, range: &AABB, seconds: f32, rng: &mut ChaCha8Rng) {
                     let index = rng.gen_range(0..business_positions.len());
                     w.update_traveling_to(
                         entity_id,
-                        business_positions
-                            .get(index)
-                            .expect("Index generated in range"),
+                        TravelingTo::TravelPosition(
+                            *business_positions
+                                .get(index)
+                                .expect("Index generated in range"),
+                        ),
                     );
                 }
                 TravelingTo::TravelPosition(to_position) => {
                     if let Some(mut from_position) = w.position_for_entity_id(entity_id) {
                         let move_result = move_ai_people(&mut from_position, to_position, seconds);
-                        if move_result == MoveResult::Done {
-                            w.update_traveling_to(entity_id, position)
-                            *traveling_to = TravelingTo::Nowhere;
-                        }
+                        let traveling_to = match move_result {
+                            MoveResult::Moving => TravelingTo::TravelPosition(from_position),
+                            MoveResult::Done => TravelingTo::Nowhere,
+                        };
+                        w.update_traveling_to(entity_id, traveling_to);
                     }
                 }
             }
