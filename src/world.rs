@@ -44,6 +44,16 @@ impl W {
         }
     }
 
+    pub fn update_position(&mut self, entity_id: i32, new_position: Position) {
+        if let Some(components) = self.entities.get(&entity_id) {
+            if let Some(index) = components.get(&Component::Position) {
+                if self.position_storage.len() > *index {
+                    self.position_storage[*index] = new_position;
+                }
+            }
+        }
+    }
+
     pub fn position_for_entity_id(&self, entity_id: i32) -> Option<Position> {
         let position_index = self.entities.get(&entity_id)?.get(&Component::Position)?;
         self.position_storage
@@ -77,7 +87,11 @@ impl W {
     pub fn add_ai_person_entity(&mut self, sprite: usize, position: Position) -> i32 {
         let entity = self.add_position_entity(sprite, position, Component::AiPerson);
         let traveling_to_index = self.traveling_to_storage.len();
-        self.entities[&entity].insert(Component::TravelingTo, traveling_to_index);
+        self.traveling_to_storage.push(TravelingTo::Nowhere);
+        self.entities
+            .get_mut(&entity)
+            .unwrap()
+            .insert(Component::TravelingTo, traveling_to_index);
         self.ai_person_index.push(entity);
         entity
     }

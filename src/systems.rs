@@ -22,27 +22,26 @@ pub fn travel(w: &mut W, range: &AABB, seconds: f32, rng: &mut ChaCha8Rng) {
                 TravelingTo::Nowhere => {
                     let business_positions = w.business_positions(range);
                     let index = rng.gen_range(0..business_positions.len());
+                    let business_position = *business_positions
+                        .get(index)
+                        .expect("Index generated in range");
                     w.update_traveling_to(
                         entity_id,
-                        TravelingTo::TravelPosition(
-                            *business_positions
-                                .get(index)
-                                .expect("Index generated in range"),
-                        ),
+                        TravelingTo::TravelPosition(business_position),
                     );
                 }
                 TravelingTo::TravelPosition(to_position) => {
                     if let Some(mut from_position) = w.position_for_entity_id(entity_id) {
                         let move_result = move_ai_people(&mut from_position, to_position, seconds);
-                        let traveling_to = match move_result {
-                            MoveResult::Moving => TravelingTo::TravelPosition(from_position),
-                            MoveResult::Done => TravelingTo::Nowhere,
+                        match move_result {
+                            MoveResult::Moving => w.update_position(entity_id, from_position),
+                            MoveResult::Done => {
+                                w.update_traveling_to(entity_id, TravelingTo::Nowhere)
+                            }
                         };
-                        w.update_traveling_to(entity_id, traveling_to);
                     }
                 }
             }
-            if let Some(position) = w.position_for_entity_id(entity_id) {}
         }
     }
 }
@@ -61,8 +60,8 @@ fn move_ai_people(
     let dx = to_position.x - from_position.x;
     let dy = to_position.y - from_position.y;
     let len = (dx * dx + dy * dy).sqrt();
-    from_position.x += dx * seconds * 50. / len;
-    from_position.y += dy * seconds * 50. / len;
+    from_position.x += dx * seconds * 500. / len;
+    from_position.y += dy * seconds * 500. / len;
     if len < 0.1 {
         return MoveResult::Done;
     }

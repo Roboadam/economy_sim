@@ -11,7 +11,6 @@ use systems::*;
 use world::W;
 
 mod components;
-mod entity_map;
 mod quadtree;
 mod rendering;
 mod spawners;
