@@ -11,7 +11,7 @@ use crate::{
 
 pub struct W {
     next_index: i32,
-    entities: HashMap<i32, HashMap<Component, usize>>,
+    entities: HashMap<i32, HashMap<ComponentType, usize>>,
     business_index: Quadtree,
     position_storage: Vec<Position>,
     sprite_storage: Vec<Texture2D>,
@@ -34,9 +34,17 @@ impl W {
         }
     }
 
+    pub fn insert_entity(&mut self, components: Vec<i32>) -> i32 {
+        0
+    }
+
+    // pub fn register_query(&mut self, component_types: Vec<ComponentType>) -> i32 {
+    //     0
+    // }
+
     pub fn update_traveling_to(&mut self, entity_id: i32, new_traveling_to: TravelingTo) {
         if let Some(components) = self.entities.get(&entity_id) {
-            if let Some(index) = components.get(&Component::TravelingTo) {
+            if let Some(index) = components.get(&ComponentType::TravelingTo) {
                 if self.traveling_to_storage.len() > *index {
                     self.traveling_to_storage[*index] = new_traveling_to;
                 }
@@ -46,7 +54,7 @@ impl W {
 
     pub fn update_position(&mut self, entity_id: i32, new_position: Position) {
         if let Some(components) = self.entities.get(&entity_id) {
-            if let Some(index) = components.get(&Component::Position) {
+            if let Some(index) = components.get(&ComponentType::Position) {
                 if self.position_storage.len() > *index {
                     self.position_storage[*index] = new_position;
                 }
@@ -55,7 +63,10 @@ impl W {
     }
 
     pub fn position_for_entity_id(&self, entity_id: i32) -> Option<Position> {
-        let position_index = self.entities.get(&entity_id)?.get(&Component::Position)?;
+        let position_index = self
+            .entities
+            .get(&entity_id)?
+            .get(&ComponentType::Position)?;
         self.position_storage
             .get(*position_index)
             .map(|p| p.clone())
@@ -65,7 +76,7 @@ impl W {
         let index = self
             .entities
             .get(&entity_id)?
-            .get(&Component::TravelingTo)?;
+            .get(&ComponentType::TravelingTo)?;
         self.traveling_to_storage.get(*index)
     }
 
@@ -75,23 +86,23 @@ impl W {
     }
 
     pub fn add_business_entity(&mut self, sprite: usize, position: Position) -> i32 {
-        let entity = self.add_position_entity(sprite, position, Component::Business);
+        let entity = self.add_position_entity(sprite, position, ComponentType::Business);
         let _ = self.business_index.insert(position, entity);
         entity
     }
 
     pub fn add_home_entity(&mut self, sprite: usize, position: Position) -> i32 {
-        self.add_position_entity(sprite, position, Component::Home)
+        self.add_position_entity(sprite, position, ComponentType::Home)
     }
 
     pub fn add_ai_person_entity(&mut self, sprite: usize, position: Position) -> i32 {
-        let entity = self.add_position_entity(sprite, position, Component::AiPerson);
+        let entity = self.add_position_entity(sprite, position, ComponentType::AiPerson);
         let traveling_to_index = self.traveling_to_storage.len();
         self.traveling_to_storage.push(TravelingTo::Nowhere);
         self.entities
             .get_mut(&entity)
             .unwrap()
-            .insert(Component::TravelingTo, traveling_to_index);
+            .insert(ComponentType::TravelingTo, traveling_to_index);
         self.ai_person_index.push(entity);
         entity
     }
@@ -100,8 +111,8 @@ impl W {
         self.entities
             .iter()
             .filter(|(_, components)| {
-                components.contains_key(&Component::TravelingTo)
-                    && components.contains_key(&Component::Position)
+                components.contains_key(&ComponentType::TravelingTo)
+                    && components.contains_key(&ComponentType::Position)
             })
             .map(|(entity_id, _)| *entity_id)
             .collect()
@@ -114,8 +125,8 @@ impl W {
             .filter(|option| option.is_some())
             .map(|option| {
                 let components = option.expect("filtered out nones");
-                let position_index = components.get(&Component::Position).unwrap();
-                let sprite_index = components.get(&Component::Sprite).unwrap();
+                let position_index = components.get(&ComponentType::Position).unwrap();
+                let sprite_index = components.get(&ComponentType::Sprite).unwrap();
                 let position = self.position_storage.get(*position_index).unwrap();
                 let sprite = self.sprite_storage.get(*sprite_index).unwrap();
                 (position, sprite)
@@ -139,8 +150,8 @@ impl W {
             .filter(|option| option.is_some())
             .map(|option| {
                 let components = option.expect("filtered out nones");
-                let position_index = components.get(&Component::Position).unwrap();
-                let sprite_index = components.get(&Component::Sprite).unwrap();
+                let position_index = components.get(&ComponentType::Position).unwrap();
+                let sprite_index = components.get(&ComponentType::Sprite).unwrap();
                 let position = self.position_storage.get(*position_index).unwrap();
                 let sprite = self.sprite_storage.get(*sprite_index).unwrap();
                 (position, sprite)
@@ -152,7 +163,7 @@ impl W {
         &mut self,
         sprite: usize,
         position: Position,
-        component: Component,
+        component: ComponentType,
     ) -> i32 {
         let entity_index = self.next_index;
         self.next_index += 1;
@@ -161,8 +172,8 @@ impl W {
         self.position_storage.push(position);
 
         let mut entity = HashMap::new();
-        entity.insert(Component::Position, position_index);
-        entity.insert(Component::Sprite, sprite);
+        entity.insert(ComponentType::Position, position_index);
+        entity.insert(ComponentType::Sprite, sprite);
         entity.insert(component, 0);
 
         self.entities.insert(entity_index, entity);
@@ -171,7 +182,7 @@ impl W {
 }
 
 #[derive(PartialEq, Eq, Hash)]
-pub enum Component {
+pub enum ComponentType {
     Position,
     Sprite,
     Home,
