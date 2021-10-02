@@ -9,3 +9,7 @@ pub enum TravelingTo {
     Nowhere,
     TravelPosition(Position),
 }
+
+pub struct RandomTraveler();
+
+pub struct Sprite(usize);

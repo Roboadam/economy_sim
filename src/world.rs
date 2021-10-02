@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{any::TypeId, collections::HashMap};
 
 use macroquad::prelude::Texture2D;
 use rand::SeedableRng;
@@ -18,6 +18,7 @@ pub struct W {
     traveling_to_storage: Vec<TravelingTo>,
     ai_person_index: Vec<i32>,
     pub rng: ChaCha8Rng,
+    entities2: Vec<Vec<TypeId>>,
 }
 
 impl W {
@@ -31,11 +32,22 @@ impl W {
             traveling_to_storage: Vec::new(),
             ai_person_index: Vec::new(),
             rng: ChaCha8Rng::seed_from_u64(*seed),
+            entities2: Vec::new(),
         }
     }
 
-    pub fn insert_entity(&mut self, components: Vec<i32>) -> i32 {
-        0
+    pub fn create_entity(&mut self) -> usize {
+        let entitiy_id = self.entities2.len();
+        self.entities2.push(Vec::new());
+        entitiy_id
+    }
+
+    pub fn add_component<T: 'static>(&mut self, entity_id: usize, component: T) {
+        let type_id = TypeId::of::<T>();
+        if let Some(components) = self.entities2.get_mut(entity_id) {
+            components.push(type_id);
+            
+        }
     }
 
     // pub fn register_query(&mut self, component_types: Vec<ComponentType>) -> i32 {
