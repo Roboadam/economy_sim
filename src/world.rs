@@ -18,7 +18,8 @@ pub struct W {
     traveling_to_storage: Vec<TravelingTo>,
     ai_person_index: Vec<i32>,
     pub rng: ChaCha8Rng,
-    entities2: Vec<Vec<TypeId>>,
+    entities2: Vec<Vec<(TypeId, usize)>>,
+    // component_storage: HashMap<TypeId, Vec>,
 }
 
 impl W {
@@ -46,7 +47,6 @@ impl W {
         let type_id = TypeId::of::<T>();
         if let Some(components) = self.entities2.get_mut(entity_id) {
             components.push(type_id);
-            
         }
     }
 
