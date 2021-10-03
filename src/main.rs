@@ -17,8 +17,17 @@ mod spawners;
 mod systems;
 mod world;
 
+macro_rules! say_hello {
+    // `()` indicates that the macro takes no argument.
+    () => {
+        // The macro will expand into the contents of this block.
+        println!("Hello!");
+    };
+}
+
 #[macroquad::main("City Sim")]
 async fn main() {
+    say_hello!();
     let building_texture = open_pixel_texture("textures/ai_travel_point.png").await;
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
     let half_dimension = max(get_screen_data().width(), get_screen_data().height()) as f32 / 2.;
