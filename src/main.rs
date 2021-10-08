@@ -7,31 +7,31 @@ use quadtree::AABB;
 use rand_chacha::ChaCha8Rng;
 use rendering::*;
 use spawners::*;
+use sprites::Sprites;
 use systems::*;
 use world::W;
 
+mod ai_person;
 mod components;
 mod quadtree;
 mod rendering;
 mod spawners;
+mod sprites;
 mod systems;
 mod world;
 
-macro_rules! say_hello {
-    // `()` indicates that the macro takes no argument.
-    () => {
-        // The macro will expand into the contents of this block.
-        println!("Hello!");
-    };
-}
-
 #[macroquad::main("City Sim")]
 async fn main() {
-    say_hello!();
+    let mut rng = ChaCha8Rng::seed_from_u64(2);
+    let mut sprites = Sprites::default();
+    let ai_texture_index = sprites
+        .add_sprite_from_path("textures/ai_travel_point.png")
+        .await;
+    let ai_people = spawn_ai_people2(5, ai_texture_index, &mut rng);
+
     let building_texture = open_pixel_texture("textures/ai_travel_point.png").await;
     let ai_player_texture = open_pixel_texture("textures/ai_player.png").await;
     let half_dimension = max(get_screen_data().width(), get_screen_data().height()) as f32 / 2.;
-    let mut rng = ChaCha8Rng::seed_from_u64(2);
     let center = Position {
         x: half_dimension,
         y: half_dimension,
@@ -51,7 +51,8 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
-        draw_ai(&mut world);
+        ai_people.iter().for_each(|p| draw(p, &sprites));
+        // draw_ai(&mut world);
         draw_businesses(&mut world, &world_bounding_box);
         travel(&mut world, &world_bounding_box, get_frame_time(), &mut rng);
 

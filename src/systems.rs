@@ -1,4 +1,10 @@
-use crate::{components::*, quadtree::AABB, world::W};
+use crate::{
+    ai_person::{AiPerson, IsDrawable},
+    components::*,
+    quadtree::AABB,
+    sprites::Sprites,
+    world::W,
+};
 use ::rand::Rng;
 use macroquad::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -7,6 +13,13 @@ pub fn draw_ai(world: &mut W) {
     for (position, sprite) in world.ai_positions_and_sprites() {
         draw_texture(*sprite, position.x, position.y, WHITE);
     }
+}
+
+pub fn draw<T: IsDrawable>(drawable: &T, sprites: &Sprites) {
+    let (texture_index, position) = drawable.render_info();
+    let texture = sprites.texture(texture_index);
+    println!("drawing {:?}", position);
+    draw_texture(*texture, position.x, position.y, WHITE);
 }
 
 pub fn draw_businesses(world: &mut W, aabb: &AABB) {
