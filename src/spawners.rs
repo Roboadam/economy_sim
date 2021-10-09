@@ -24,7 +24,8 @@ pub fn spawn_ai_people2(num: i32, texture_index: usize, rng: &mut ChaCha8Rng) ->
     let mut result = Vec::new();
     for position in random_positions(num, x_max, y_max, rng) {
         let mut ai_person = AiPerson::default();
-        ai_person.set_position(&position);
+        // ai_person.set_position(&position);
+        ai_person.set_position(&Position { x: 55., y: 137. });
         ai_person.set_texture_index(texture_index);
         result.push(ai_person);
     }

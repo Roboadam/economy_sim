@@ -1,6 +1,7 @@
 use std::cmp::max;
 
 use ::rand::SeedableRng;
+use ai_person::HasPosition;
 use components::Position;
 use macroquad::prelude::*;
 use quadtree::AABB;
@@ -49,10 +50,9 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
-        ai_people
-            .iter()
-            .for_each(|p| draw(p, &sprites, &ai_player_texture));
+        ai_people.iter().for_each(|p| draw(p, &sprites));
         // draw_ai(&world);
+        // draw_texture(ai_player_texture, 55., 137., WHITE);
         draw_businesses(&mut world, &world_bounding_box);
         // travel(&mut world, &world_bounding_box, get_frame_time(), &mut rng);
 
