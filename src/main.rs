@@ -24,9 +24,7 @@ mod world;
 async fn main() {
     let mut rng = ChaCha8Rng::seed_from_u64(2);
     let mut sprites = Sprites::default();
-    let ai_texture_index = sprites
-        .add_sprite_from_path("textures/ai_travel_point.png")
-        .await;
+    let ai_texture_index = sprites.add_sprite_from_path("textures/ai_player.png").await;
     let ai_people = spawn_ai_people2(5, ai_texture_index, &mut rng);
 
     let building_texture = open_pixel_texture("textures/ai_travel_point.png").await;
@@ -51,10 +49,12 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
-        ai_people.iter().for_each(|p| draw(p, &sprites));
-        // draw_ai(&mut world);
+        ai_people
+            .iter()
+            .for_each(|p| draw(p, &sprites, &ai_player_texture));
+        // draw_ai(&world);
         draw_businesses(&mut world, &world_bounding_box);
-        travel(&mut world, &world_bounding_box, get_frame_time(), &mut rng);
+        // travel(&mut world, &world_bounding_box, get_frame_time(), &mut rng);
 
         next_frame().await
     }

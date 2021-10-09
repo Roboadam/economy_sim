@@ -9,17 +9,19 @@ use ::rand::Rng;
 use macroquad::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-pub fn draw_ai(world: &mut W) {
+pub fn draw_ai(world: &W) {
     for (position, sprite) in world.ai_positions_and_sprites() {
+        println!("drawing2 {:?}, {:?}", position, sprite);
         draw_texture(*sprite, position.x, position.y, WHITE);
     }
 }
 
-pub fn draw<T: IsDrawable>(drawable: &T, sprites: &Sprites) {
+pub fn draw<T: IsDrawable>(drawable: &T, sprites: &Sprites, t: &Texture2D) {
     let (texture_index, position) = drawable.render_info();
     let texture = sprites.texture(texture_index);
-    println!("drawing {:?}", position);
-    draw_texture(*texture, position.x, position.y, WHITE);
+    println!("drawing {:?}, {:?}, {:?}", position, texture_index, texture);
+    // draw_texture(*texture, position.x, position.y, WHITE);
+    draw_texture(*t, position.x, position.y, WHITE);
 }
 
 pub fn draw_businesses(world: &mut W, aabb: &AABB) {
