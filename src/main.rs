@@ -34,7 +34,6 @@ async fn main() {
         buildings.iter().for_each(|p| draw(p, &sprites));
         assign_travel_to_randomly(&mut ai_people, &buildings, &mut rng);
         travel2(&mut ai_people, get_frame_time());
-        // travel(&mut world, &world_bounding_box, get_frame_time(), &mut rng);
 
         next_frame().await
     }
