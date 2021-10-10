@@ -1,13 +1,12 @@
 use crate::{components::Position, traits::*};
 
 #[derive(Default)]
-pub struct AiPerson {
+pub struct Building {
     texture_index: usize,
     position: Position,
-    traveling_to: Option<Position>,
 }
 
-impl IsDrawable for AiPerson {
+impl IsDrawable for Building {
     fn render_info(&self) -> (usize, &Position) {
         (self.texture_index, &self.position)
     }
@@ -17,7 +16,7 @@ impl IsDrawable for AiPerson {
     }
 }
 
-impl HasPosition for AiPerson {
+impl HasPosition for Building {
     fn position(&self) -> &Position {
         &self.position
     }
@@ -29,19 +28,5 @@ impl HasPosition for AiPerson {
     fn move_delta(&mut self, delta: &Position) {
         self.position.x += delta.x;
         self.position.y += delta.y;
-    }
-}
-
-impl HasTravelingTo for AiPerson {
-    fn traveling_to(&self) -> Option<&Position> {
-        (&self.traveling_to).as_ref()
-    }
-
-    fn done_traveling(&mut self) {
-        self.traveling_to = None;
-    }
-
-    fn set_traveling_to(&mut self, position: &Position) {
-        self.traveling_to = Some(position.clone());
     }
 }
