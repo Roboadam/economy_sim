@@ -8,13 +8,10 @@ use systems::*;
 mod ai_person;
 mod building;
 mod components;
-mod quadtree;
-mod rendering;
 mod spawners;
 mod sprites;
 mod systems;
 mod traits;
-mod world;
 
 #[macroquad::main("City Sim")]
 async fn main() {

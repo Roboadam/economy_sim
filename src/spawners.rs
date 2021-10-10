@@ -2,7 +2,7 @@ use macroquad::prelude::get_screen_data;
 use rand::Rng;
 use rand_chacha::ChaCha8Rng;
 
-use crate::{ai_person::AiPerson, building::Building, components::*, traits::*, world::W};
+use crate::{ai_person::AiPerson, building::Building, components::*, traits::*};
 
 pub fn spawn_ai_people(num: i32, texture_index: usize, rng: &mut ChaCha8Rng) -> Vec<AiPerson> {
     let screen_data = get_screen_data();
@@ -30,26 +30,6 @@ pub fn spawn_buildings(num: i32, texture_index: usize, rng: &mut ChaCha8Rng) -> 
         result.push(ai_person);
     }
     result
-}
-
-pub fn spawn_businesses(num: i32, sprite: usize, w: &mut W) {
-    let screen_data = get_screen_data();
-    let x_max = screen_data.width() as f32;
-    let y_max = screen_data.height() as f32;
-
-    for position in random_positions(num, x_max, y_max, &mut w.rng) {
-        w.add_business_entity(sprite, position);
-    }
-}
-
-pub fn spawn_homes(num: i32, sprite: usize, w: &mut W) {
-    let screen_data = get_screen_data();
-    let x_max = screen_data.width() as f32;
-    let y_max = screen_data.height() as f32;
-
-    for position in random_positions(num, x_max, y_max, &mut w.rng) {
-        w.add_home_entity(sprite, position);
-    }
 }
 
 fn random_positions(num: i32, x_max: f32, y_max: f32, rng: &mut ChaCha8Rng) -> Vec<Position> {
