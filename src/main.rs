@@ -30,10 +30,12 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
+        let frame_time = get_frame_time();
         ai_people.iter().for_each(|p| draw(p, &sprites));
         buildings.iter().for_each(|p| draw(p, &sprites));
-        assign_travel_to_randomly(&mut ai_people, &buildings, &mut rng);
-        travel2(&mut ai_people, get_frame_time());
+        assign_travel_to_randomly(&mut ai_people, &buildings, frame_time, &mut rng);
+        travel(&mut ai_people, frame_time);
+        idle_calorie_burn(&mut ai_people, frame_time);
 
         next_frame().await
     }

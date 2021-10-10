@@ -4,6 +4,7 @@ use crate::{components::Position, traits::*};
 pub struct AiPerson {
     texture_index: usize,
     position: Position,
+    hunger: f32,
     traveling_to: Option<Position>,
 }
 
@@ -14,6 +15,29 @@ impl IsDrawable for AiPerson {
 
     fn set_texture_index(&mut self, texture_index: usize) {
         self.texture_index = texture_index;
+    }
+}
+
+impl NeedsFood for AiPerson {
+    fn eat(&mut self, food: f32) -> f32 {
+        if self.hunger <= 0. {
+            return food;
+        }
+        self.hunger -= food;
+        if self.hunger < 0. {
+            let leftovers = -self.hunger;
+            self.hunger = 0.;
+            return leftovers;
+        }
+        0.
+    }
+
+    fn burn_calories(&mut self, burn: f32) {
+        self.hunger += burn;
+    }
+
+    fn hunger_index(&self) -> f32 {
+        self.hunger
     }
 }
 
@@ -41,7 +65,8 @@ impl HasTravelingTo for AiPerson {
         self.traveling_to = None;
     }
 
-    fn set_traveling_to(&mut self, position: &Position) {
+    fn set_traveling_to(&mut self, position: &Position, seconds: f32) {
         self.traveling_to = Some(position.clone());
+        self.burn_calories(seconds);
     }
 }
