@@ -120,6 +120,7 @@ impl W {
                 let position_index = components.get(&ComponentType::Position).unwrap();
                 let sprite_index = components.get(&ComponentType::Sprite).unwrap();
                 let position = self.position_storage.get(*position_index).unwrap();
+                println!("spritestoreage index:{:?}", sprite_index);
                 let sprite = self.sprite_storage.get(*sprite_index).unwrap();
                 (position, sprite)
             })

@@ -50,9 +50,11 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
-        ai_people.iter().for_each(|p| draw(p, &sprites));
+        for p in ai_people.iter() {
+            draw(p, &sprites);
+        }
+        // ai_people.iter().for_each(|p| draw(p, &sprites));
         // draw_ai(&world);
-        // draw_texture(ai_player_texture, 55., 137., WHITE);
         draw_businesses(&mut world, &world_bounding_box);
         // travel(&mut world, &world_bounding_box, get_frame_time(), &mut rng);
 

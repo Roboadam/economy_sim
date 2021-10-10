@@ -19,11 +19,8 @@ pub fn draw_ai(world: &W) {
 pub fn draw<T: IsDrawable>(drawable: &T, sprites: &Sprites) {
     let (texture_index, position) = drawable.render_info();
     let texture = sprites.texture(texture_index);
-    println!("drawing {:?}, {:?}, {:?}", position, texture_index, texture);
+    println!("drawing {:?}, {:?}", position, get_screen_data());
     draw_texture(*texture, position.x, position.y, WHITE);
-    // draw_texture(*t, position.x, position.y, WHITE);
-    // draw_texture(*texture, 55., 137., WHITE);
-    // draw_texture(*t, position.x, position.y, WHITE);
 }
 
 pub fn draw_businesses(world: &mut W, aabb: &AABB) {
