@@ -50,9 +50,8 @@ async fn main() {
         }
 
         clear_background(LIGHTGRAY);
-        for p in ai_people.iter() {
-            draw(p, &sprites);
-        }
+        draw(ai_people.get(1).unwrap(), &sprites);
+        draw(ai_people.get(0).unwrap(), &sprites);
         // ai_people.iter().for_each(|p| draw(p, &sprites));
         // draw_ai(&world);
         draw_businesses(&mut world, &world_bounding_box);
