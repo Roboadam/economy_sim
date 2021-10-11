@@ -50,9 +50,12 @@ impl HasPosition for AiPerson {
         self.position = *position;
     }
 
-    fn move_delta(&mut self, delta: &Position) {
-        self.position.x += delta.x;
-        self.position.y += delta.y;
+    fn move_delta(&mut self, delta: &Position, seconds: f32) {
+        if self.hunger_index() < 1. {
+            self.position.x += delta.x;
+            self.position.y += delta.y;
+            self.burn_calories(seconds / 50.)
+        }
     }
 }
 
@@ -65,8 +68,7 @@ impl HasTravelingTo for AiPerson {
         self.traveling_to = None;
     }
 
-    fn set_traveling_to(&mut self, position: &Position, seconds: f32) {
+    fn set_traveling_to(&mut self, position: &Position) {
         self.traveling_to = Some(position.clone());
-        self.burn_calories(seconds);
     }
 }

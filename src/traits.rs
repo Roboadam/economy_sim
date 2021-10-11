@@ -14,11 +14,11 @@ pub trait NeedsFood {
 pub trait HasPosition {
     fn position(&self) -> &Position;
     fn set_position(&mut self, position: &Position);
-    fn move_delta(&mut self, delta: &Position);
+    fn move_delta(&mut self, delta: &Position, seconds: f32);
 }
 
 pub trait HasTravelingTo {
     fn traveling_to(&self) -> Option<&Position>;
     fn done_traveling(&mut self);
-    fn set_traveling_to(&mut self, position: &Position, seconds: f32);
+    fn set_traveling_to(&mut self, position: &Position);
 }

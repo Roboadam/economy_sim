@@ -25,8 +25,5 @@ impl HasPosition for Building {
         self.position = *position;
     }
 
-    fn move_delta(&mut self, delta: &Position) {
-        self.position.x += delta.x;
-        self.position.y += delta.y;
-    }
+    fn move_delta(&mut self, _delta: &Position, _seconds: f32) {}
 }
