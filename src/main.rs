@@ -1,7 +1,9 @@
+use std::time::SystemTime;
+
 use ::rand::SeedableRng;
 use kiss3d::{
     light::Light,
-    nalgebra::{UnitQuaternion, Vector3},
+    nalgebra::{Translation, UnitQuaternion, Vector3},
     window::Window,
 };
 use macroquad::prelude::*;
@@ -20,19 +22,6 @@ mod traits;
 
 #[macroquad::main("City Sim")]
 async fn main() {
-    let mut window = Window::new("Kiss3d: cube");
-    let mut c = window.add_cube(1.0, 1.0, 1.0);
-
-    c.set_color(1.0, 0.0, 0.0);
-
-    window.set_light(Light::StickToCamera);
-
-    let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
-
-    while window.render() {
-        c.prepend_to_local_rotation(&rot);
-    }
-
     let mut rng = ChaCha8Rng::seed_from_u64(2);
     let mut sprites = Sprites::default();
     let ai_texture_index = sprites.add_sprite_from_path("textures/ai_player.png").await;
@@ -42,19 +31,41 @@ async fn main() {
     let mut ai_people = spawn_ai_people(5, ai_texture_index, &mut rng);
     let buildings = spawn_buildings(5, building_texture_index, &mut rng);
 
-    loop {
-        if is_key_pressed(KeyCode::F) {
-            println!("FPS: {}", get_fps());
-        }
+    ///////////////////////////////////////////
 
-        clear_background(LIGHTGRAY);
-        let frame_time = get_frame_time();
-        ai_people.iter().for_each(|p| draw(p, &sprites));
-        buildings.iter().for_each(|p| draw(p, &sprites));
-        assign_travel_to_randomly(&mut ai_people, &buildings, &mut rng);
-        travel(&mut ai_people, frame_time);
-        idle_calorie_burn(&mut ai_people, frame_time);
+    let mut window = Window::new("Kiss3d: cube");
+    let mut c = window.add_cube(1.0, 1.0, 1.0);
+    let mut d = window.add_cube(1.0, 1.0, 1.0);
 
-        next_frame().await
+    c.set_color(1.0, 0.0, 0.0);
+    d.set_color(0.0, 1.0, 0.0);
+
+    window.set_light(Light::StickToCamera);
+
+    let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 0.014);
+    let mut frame_time = 1u128;
+
+    while window.render() {
+        let now = SystemTime::now();
+        c.prepend_to_local_rotation(&rot);
+        frame_time = now.elapsed().expect("Framerate timer failed").as_millis();
     }
+
+    ///////////////////////////////////////////
+
+    // loop {
+    //     if is_key_pressed(KeyCode::F) {
+    //         println!("FPS: {}", get_fps());
+    //     }
+
+    //     clear_background(LIGHTGRAY);
+    //     let frame_time = get_frame_time();
+    //     ai_people.iter().for_each(|p| draw(p, &sprites));
+    //     buildings.iter().for_each(|p| draw(p, &sprites));
+    //     assign_travel_to_randomly(&mut ai_people, &buildings, &mut rng);
+    //     travel(&mut ai_people, frame_time);
+    //     idle_calorie_burn(&mut ai_people, frame_time);
+
+    //     next_frame().await
+    // }
 }
